@@ -1,0 +1,5 @@
+node_modules/
+pw-profile/
+log.json
+.DS_Store
+*.local

@@ -1,0 +1,22 @@
+{
+  "chatgpt": {
+    "name": "ChatGPT",
+    "url": "https://chatgpt.com/",
+    "selectors": {
+      "input": "textarea",
+      "sendButton": null,
+      "lastMessage": "[data-message-author-role='assistant'] >> nth=-1",
+      "stopButton": null
+    }
+  },
+  "grok": {
+    "name": "Grok",
+    "url": "https://grok.com/",
+    "selectors": {
+      "input": "textarea",
+      "sendButton": null,
+      "lastMessage": ".message.assistant >> nth=-1",
+      "stopButton": null
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "llm-rally",
+  "version": "1.0.0",
+  "description": "Playwrightを使って、2つのLLMチャットUIを自動で往復させるツール",
+  "main": "rally.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node rally.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  }
+}
