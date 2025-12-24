@@ -15,8 +15,10 @@ Playwrightを使って、2つのLLMチャットUIを自動で往復させるツ�
 ### 1. 依存関係のインストール
 ```bash
 npm install
-npx playwright install chromium
 ```
+
+注意: このツールはシステムにインストールされているGoogle Chromeを使用します。
+Chromeがインストールされていない場合は、事前にインストールしてください。
 
 ### 2. 初回ログイン
 ```bash

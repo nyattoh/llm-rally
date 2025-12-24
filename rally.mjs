@@ -133,7 +133,8 @@ async function main() {
   console.log("Launching browser...");
   const ctx = await chromium.launchPersistentContext(USER_DATA_DIR, {
     headless: false,
-    viewport: { width: 1400, height: 900 }
+    viewport: { width: 1400, height: 900 },
+    channel: 'chrome' // Use system Chrome instead of Playwright's Chromium
   });
 
   const pages = ctx.pages();

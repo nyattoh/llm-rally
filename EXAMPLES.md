@@ -189,6 +189,7 @@ jobs:
         with:
           node-version: '18'
       - run: npm install
-      - run: npx playwright install chromium
       - run: npm test
 ```
+
+注意: CI/CD環境では、システムにChromeがインストールされている必要があります。
