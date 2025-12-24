@@ -3,20 +3,40 @@
     "name": "ChatGPT",
     "url": "https://chatgpt.com/",
     "selectors": {
-      "input": "textarea",
-      "sendButton": null,
-      "lastMessage": "[data-message-author-role='assistant'] >> nth=-1",
-      "stopButton": null
+      "input": "textarea#prompt-textarea, textarea[placeholder*='Message']",
+      "sendButton": "button[data-testid='send-button']",
+      "lastMessage": "[data-message-author-role='assistant']:last-of-type",
+      "stopButton": "button[aria-label='Stop generating'], button:has-text('Stop generating')"
     }
   },
   "grok": {
     "name": "Grok",
     "url": "https://grok.com/",
     "selectors": {
-      "input": "textarea",
-      "sendButton": null,
-      "lastMessage": ".message.assistant >> nth=-1",
-      "stopButton": null
+      "input": "textarea[placeholder*='Ask'], textarea",
+      "sendButton": "button[type='submit'], button[aria-label='Send']",
+      "lastMessage": "[role='article']:last-of-type, .message:last-of-type, div[data-testid='message']:last-of-type",
+      "stopButton": "button:has-text('Stop'), button[aria-label='Stop']"
+    }
+  },
+  "claude": {
+    "name": "Claude",
+    "url": "https://claude.ai/",
+    "selectors": {
+      "input": "div[contenteditable='true'], textarea",
+      "sendButton": "button[aria-label='Send Message']",
+      "lastMessage": "div[data-is-streaming='false']:last-of-type",
+      "stopButton": "button:has-text('Stop')"
+    }
+  },
+  "gemini": {
+    "name": "Gemini",
+    "url": "https://gemini.google.com/",
+    "selectors": {
+      "input": "rich-textarea[placeholder*='Enter'], textarea",
+      "sendButton": "button[aria-label*='Send']",
+      "lastMessage": "message-content:last-of-type",
+      "stopButton": "button[aria-label='Stop generating']"
     }
   }
 }

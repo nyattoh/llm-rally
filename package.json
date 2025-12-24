@@ -5,8 +5,18 @@
   "main": "rally.mjs",
   "type": "module",
   "scripts": {
-    "start": "node rally.mjs"
+    "start": "node rally.mjs",
+    "login": "node rally.mjs --login-only",
+    "test": "node --check rally.mjs"
   },
+  "keywords": [
+    "playwright",
+    "llm",
+    "chatgpt",
+    "automation"
+  ],
+  "author": "",
+  "license": "MIT",
   "dependencies": {
     "playwright": "^1.40.0"
   }
