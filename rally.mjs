@@ -1,4 +1,5 @@
-import { chromium } from "playwright";
+import { chromium, firefox, webkit } from "playwright";
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -21,6 +22,10 @@ const ROUNDS = Number(argValue("--rounds", "5")); // round trips
 const OUT_FILE = argValue("--out", "log.json");
 const SEED_FILE = argValue("--seed-file", "seed.txt");
 const LOGIN_ONLY = hasFlag("--login-only");
+const BROWSER = argValue("--browser", "chromium");
+const CHANNEL = argValue("--channel", null);
+const CDP_URL = argValue("--cdp", null);
+const DEFAULT_BROWSER = hasFlag("--default-browser") || BROWSER === "default";
 
 function getSite(key) {
   const site = CONFIG[key];
@@ -32,7 +37,100 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-async function waitForStableText(locator, timeoutMs) {
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+function safeExec(command) {
+  try {
+    return execSync(command, { stdio: ["ignore", "pipe", "ignore"] })
+      .toString("utf-8")
+      .trim();
+  } catch {
+    return "";
+  }
+}
+
+function detectDefaultBrowser() {
+  if (process.platform === "win32") {
+    const out = safeExec(
+      'reg query "HKCU\\Software\\Microsoft\\Windows\\Shell\\Associations\\UrlAssociations\\http\\UserChoice" /v ProgId'
+    );
+    const match = out.match(/ProgId\\s+REG_SZ\\s+(.+)/i);
+    const progId = match?.[1]?.trim() ?? "";
+    if (/ChromeHTML/i.test(progId)) return { name: "chromium", channel: "chrome", source: progId };
+    if (/MSEdgeHTM/i.test(progId)) return { name: "chromium", channel: "msedge", source: progId };
+    if (/FirefoxURL/i.test(progId)) return { name: "firefox", channel: null, source: progId };
+    if (progId) return { name: "chromium", channel: null, source: progId };
+  }
+
+  if (process.platform === "linux") {
+    const out = safeExec("xdg-settings get default-web-browser");
+    const lower = out.toLowerCase();
+    if (lower.includes("firefox")) return { name: "firefox", channel: null, source: out };
+    if (lower.includes("edge")) return { name: "chromium", channel: "msedge", source: out };
+    if (lower.includes("chrome") || lower.includes("chromium") || lower.includes("brave")) {
+      return { name: "chromium", channel: "chrome", source: out };
+    }
+  }
+
+  return { name: "chromium", channel: null, source: "fallback" };
+}
+
+function resolveBrowserConfig() {
+  const cdpEndpoint = hasFlag("--cdp")
+    ? (CDP_URL || "http://localhost:9222")
+    : null;
+  if (cdpEndpoint) {
+    return { mode: "cdp", cdpEndpoint };
+  }
+
+  let browserName = BROWSER;
+  let channel = CHANNEL;
+  if (DEFAULT_BROWSER) {
+    const detected = detectDefaultBrowser();
+    browserName = detected.name;
+    if (!channel) channel = detected.channel;
+    if (detected.source && detected.source !== "fallback") {
+      console.log(`Default browser detected: ${detected.source}`);
+    }
+  }
+
+  let browserType;
+  if (browserName === "chromium") browserType = chromium;
+  else if (browserName === "firefox") browserType = firefox;
+  else if (browserName === "webkit") browserType = webkit;
+  else {
+    throw new Error(`Unsupported --browser: ${browserName}`);
+  }
+
+  if (channel && browserName !== "chromium") {
+    console.warn(`--channel ignored for ${browserName}`);
+    channel = null;
+  }
+
+  return { mode: "launch", browserType, channel, browserName };
+}
+
+function stripTrailingNth(selector) {
+  if (!selector) return { base: selector, hadNth: false };
+  const base = selector.replace(/\s*>>\s*nth=-?\d+\s*$/i, "");
+  return { base: base || selector, hadNth: base !== selector };
+}
+
+async function waitForTextChange(locator, prevText, timeoutMs) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const cur = (await locator.innerText()).trim();
+      if (cur && cur !== prevText) return;
+    } catch { }
+    await sleep(500);
+  }
+  throw new Error("Timed out waiting for response to start.");
+}
+
+async function waitForStableText(locator, timeoutMs, stableMs = 4000) {
   const start = Date.now();
   let prev = "";
   let stable = 0;
@@ -97,6 +195,7 @@ async function askAndGet(page, site, text) {
   console.log("  Waiting for generation to complete...");
   if (stopButton) {
     const stopLoc = page.locator(stopButton).first();
+    const stopLoc = page.locator(stopButton).first();
     try {
       // Wait for stop button to appear (generation started)
       await stopLoc.waitFor({ state: "visible", timeout: 10000 });
@@ -137,8 +236,7 @@ async function main() {
     channel: 'chrome' // Use system Chrome instead of Playwright's Chromium
   });
 
-  const pages = ctx.pages();
-  const pageA = pages.length > 0 ? pages[0] : await ctx.newPage();
+  const pageA = await ctx.newPage();
   const pageB = await ctx.newPage();
 
   console.log(`Opening ${siteA.name} at ${siteA.url}...`);
@@ -154,6 +252,10 @@ async function main() {
     await new Promise(r => ctx.on("close", r));
     console.log("Browser closed. Session saved.");
     return;
+  }
+
+  if (!Number.isFinite(ROUNDS) || ROUNDS < 1) {
+    throw new Error("--rounds must be a positive number.");
   }
 
   const seedPath = path.resolve(SEED_FILE);
@@ -175,8 +277,27 @@ async function main() {
   }
 
   const log = [];
+  const outPath = path.resolve(OUT_FILE);
+  const writeLogSafe = () => {
+    try {
+      fs.writeFileSync(outPath, JSON.stringify(log, null, 2), "utf-8");
+    } catch (err) {
+      console.warn("Failed to write log:", err?.message ?? err);
+    }
+  };
+
+  const onInterrupt = () => {
+    console.log("Interrupted. Saving log...");
+    writeLogSafe();
+    process.exit(130);
+  };
+  process.on("SIGINT", onInterrupt);
+  process.on("SIGTERM", onInterrupt);
+
   log.push({ ts: nowIso(), type: "meta", a: A_KEY, b: B_KEY, first: FIRST, rounds: ROUNDS });
+  writeLogSafe();
   log.push({ ts: nowIso(), type: "seed", text: seed });
+  writeLogSafe();
 
   let current = seed;
 

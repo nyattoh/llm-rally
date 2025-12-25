@@ -1,0 +1,620 @@
+{
+  "schemaVersion": 1,
+  "projectPath": "D:/kamui4d/llm-rally/.worktrees/task-1766594717885-5f8a30",
+  "projectRootName": "llm-rally",
+  "graphRenderingMode": "refactor",
+  "linkDisplayMode": "all",
+  "graphStats": {
+    "totalNodes": 7,
+    "folders": 1,
+    "files": 6,
+    "images": 0,
+    "videos": 0,
+    "audio": 0,
+    "code": 0,
+    "text": 2,
+    "html": 0,
+    "yaml": 0,
+    "json": 2,
+    "other": 2,
+    "totalLines": 0,
+    "maxLines": 0
+  },
+  "directoryTree": {
+    "name": "llm-rally",
+    "type": "directory",
+    "children": [
+      {
+        "name": ".gitignore",
+        "type": "file",
+        "lines": 0
+      },
+      {
+        "name": "README.md",
+        "type": "file",
+        "lines": 0
+      },
+      {
+        "name": "package.json",
+        "type": "file",
+        "lines": 0
+      },
+      {
+        "name": "rally.mjs",
+        "type": "file",
+        "lines": 0
+      },
+      {
+        "name": "seed.txt",
+        "type": "file",
+        "lines": 0
+      },
+      {
+        "name": "sites.json",
+        "type": "file",
+        "lines": 0
+      }
+    ]
+  },
+  "graphData": {
+    "nodes": [
+      {
+        "id": "llm-rally",
+        "name": "llm-rally",
+        "path": "llm-rally",
+        "type": "directory",
+        "lines": 0,
+        "val": 14,
+        "color": "#4d515a",
+        "baseColor": "#4ec9b0",
+        "originalColor": "#4ec9b0",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.22,
+        "highlighted": false,
+        "parentPath": null,
+        "childFileCount": 6
+      },
+      {
+        "id": "llm-rally/.gitignore",
+        "name": ".gitignore",
+        "path": "llm-rally/.gitignore",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#4d515a",
+        "baseColor": "#57606f",
+        "originalColor": "#57606f",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.22,
+        "highlighted": false,
+        "parentPath": "llm-rally",
+        "childFileCount": 0
+      },
+      {
+        "id": "llm-rally/README.md",
+        "name": "README.md",
+        "path": "llm-rally/README.md",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#4d515a",
+        "baseColor": "#3498db",
+        "originalColor": "#3498db",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.22,
+        "highlighted": false,
+        "parentPath": "llm-rally",
+        "childFileCount": 0
+      },
+      {
+        "id": "llm-rally/package.json",
+        "name": "package.json",
+        "path": "llm-rally/package.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#4d515a",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.22,
+        "highlighted": false,
+        "parentPath": "llm-rally",
+        "childFileCount": 0
+      },
+      {
+        "id": "llm-rally/rally.mjs",
+        "name": "rally.mjs",
+        "path": "llm-rally/rally.mjs",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#4d515a",
+        "baseColor": "#57606f",
+        "originalColor": "#57606f",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.22,
+        "highlighted": false,
+        "parentPath": "llm-rally",
+        "childFileCount": 0
+      },
+      {
+        "id": "llm-rally/seed.txt",
+        "name": "seed.txt",
+        "path": "llm-rally/seed.txt",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#4d515a",
+        "baseColor": "#95a5a6",
+        "originalColor": "#95a5a6",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.22,
+        "highlighted": false,
+        "parentPath": "llm-rally",
+        "childFileCount": 0
+      },
+      {
+        "id": "llm-rally/sites.json",
+        "name": "sites.json",
+        "path": "llm-rally/sites.json",
+        "type": "file",
+        "lines": 0,
+        "val": 6,
+        "color": "#4d515a",
+        "baseColor": "#8e44ad",
+        "originalColor": "#8e44ad",
+        "defaultGlow": 0.18,
+        "glowIntensity": 0.22,
+        "highlighted": false,
+        "parentPath": "llm-rally",
+        "childFileCount": 0
+      }
+    ],
+    "links": [
+      {
+        "source": "llm-rally",
+        "target": "llm-rally/.gitignore",
+        "type": "tree"
+      },
+      {
+        "source": "llm-rally",
+        "target": "llm-rally/README.md",
+        "type": "tree"
+      },
+      {
+        "source": "llm-rally",
+        "target": "llm-rally/package.json",
+        "type": "tree"
+      },
+      {
+        "source": "llm-rally",
+        "target": "llm-rally/rally.mjs",
+        "type": "tree"
+      },
+      {
+        "source": "llm-rally",
+        "target": "llm-rally/seed.txt",
+        "type": "tree"
+      },
+      {
+        "source": "llm-rally",
+        "target": "llm-rally/sites.json",
+        "type": "tree"
+      }
+    ]
+  },
+  "trackedFiles": [
+    ".gitignore",
+    "README.md",
+    "package.json",
+    "rally.mjs",
+    "seed.txt",
+    "sites.json"
+  ],
+  "uiState": {
+    "expandedDirs": [
+      "llm-rally",
+      "llm-rally/llm-rally",
+      "llm-rally/.kamui",
+      "llm-rally/llm-rally/.kamui",
+      "llm-rally/.kamui/apps",
+      "llm-rally/llm-rally/.kamui/apps",
+      "llm-rally/.kamui/gantte",
+      "llm-rally/llm-rally/.kamui/gantte",
+      "llm-rally/.kamui/prompt",
+      "llm-rally/llm-rally/.kamui/prompt",
+      "task-1766594717685-9097f3",
+      "llm-rally/task-1766594717685-9097f3",
+      "task-1766594717484-eaa9de",
+      "task-1766594717885-5f8a30"
+    ],
+    "selectedPath": null
+  },
+  "directoryTreeMeta": {
+    "mode": "full",
+    "maxDepthApplied": 10,
+    "maxEntriesPerDirectory": 0,
+    "isPartial": false
+  },
+  "gitHistoryMeta": {
+    "mode": "full",
+    "isPartial": false,
+    "branchPulse": null
+  },
+  "gitHistoryState": {
+    "selectedTimelineIndex": 1,
+    "activeCommitHash": "128f4670ed47868ef55c8ba7cafe41e426dc0586",
+    "entries": [
+      {
+        "type": "live",
+        "label": "現在のコードベース",
+        "files": [],
+        "branch": "main",
+        "targetCommitHash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+        "worktreePath": "D:/kamui4d/llm-rally",
+        "timestamp": 1766643807943,
+        "lane": 0,
+        "branchLabel": "main",
+        "branchTags": [
+          "main"
+        ],
+        "isDefaultWorktree": true,
+        "branchColor": "#4f85e8",
+        "index": 0
+      },
+      {
+        "type": "commit",
+        "label": "feat: Use WebKit as default browser and update selectors",
+        "commit": {
+          "hash": "128f4670ed47868ef55c8ba7cafe41e426dc0586",
+          "subject": "feat: Use WebKit as default browser and update selectors",
+          "author": "nyattoh",
+          "timestamp": 1766596103,
+          "parents": [
+            "b192779149c27a573bd3ae8a08f69e5f6081a543"
+          ],
+          "parent": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+          "refs": "task/task-1766594717885-5f8a30",
+          "branches": [
+            "task/task-1766594717885-5f8a30"
+          ]
+        },
+        "commitHash": "128f4670ed47868ef55c8ba7cafe41e426dc0586",
+        "lane": 1,
+        "parentLinks": [
+          {
+            "hash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+            "lane": 0
+          }
+        ],
+        "primaryBranchName": "task/task-1766594717885-5f8a30",
+        "branchColor": "#e8a84f",
+        "branchTags": [
+          "task/task-1766594717885-5f8a30"
+        ],
+        "index": 1
+      },
+      {
+        "type": "commit",
+        "label": "Use system Chrome instead of Playwright Chromium",
+        "commit": {
+          "hash": "574ef98ae5db5d213477097e3bf5b5b04a76f403",
+          "subject": "Use system Chrome instead of Playwright Chromium",
+          "author": "nyattoh",
+          "timestamp": 1766595798,
+          "parents": [
+            "c09c0cb7f7ab2bd571e2278c730a29f3d81eef8a"
+          ],
+          "parent": "c09c0cb7f7ab2bd571e2278c730a29f3d81eef8a",
+          "refs": "task/task-1766594717685-9097f3",
+          "branches": [
+            "task/task-1766594717685-9097f3"
+          ]
+        },
+        "commitHash": "574ef98ae5db5d213477097e3bf5b5b04a76f403",
+        "lane": 2,
+        "parentLinks": [
+          {
+            "hash": "c09c0cb7f7ab2bd571e2278c730a29f3d81eef8a",
+            "lane": 1
+          }
+        ],
+        "primaryBranchName": "task/task-1766594717685-9097f3",
+        "branchColor": "#4fe8b8",
+        "branchTags": [
+          "task/task-1766594717685-9097f3"
+        ],
+        "index": 2
+      },
+      {
+        "type": "commit",
+        "label": "Allow selecting system browser channel",
+        "commit": {
+          "hash": "ae26839a1b3558b76263b695c583c1c0c673aa3d",
+          "subject": "Allow selecting system browser channel",
+          "author": "nyattoh",
+          "timestamp": 1766595774,
+          "parents": [
+            "418686c47781ff14587157f7d62900c7e382f8d4"
+          ],
+          "parent": "418686c47781ff14587157f7d62900c7e382f8d4",
+          "refs": "task/task-1766594717484-eaa9de",
+          "branches": [
+            "task/task-1766594717484-eaa9de"
+          ]
+        },
+        "commitHash": "ae26839a1b3558b76263b695c583c1c0c673aa3d",
+        "lane": 3,
+        "parentLinks": [
+          {
+            "hash": "418686c47781ff14587157f7d62900c7e382f8d4",
+            "lane": 2
+          }
+        ],
+        "primaryBranchName": "task/task-1766594717484-eaa9de",
+        "branchColor": "#e84f7f",
+        "branchTags": [
+          "task/task-1766594717484-eaa9de"
+        ],
+        "index": 3
+      },
+      {
+        "type": "commit",
+        "label": "LLM Rally tool: バグ修正と機能強化",
+        "commit": {
+          "hash": "c09c0cb7f7ab2bd571e2278c730a29f3d81eef8a",
+          "subject": "LLM Rally tool: バグ修正と機能強化",
+          "author": "nyattoh",
+          "timestamp": 1766595608,
+          "parents": [
+            "b192779149c27a573bd3ae8a08f69e5f6081a543"
+          ],
+          "parent": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+          "refs": "",
+          "branches": [
+            "task/task-1766594717685-9097f3"
+          ]
+        },
+        "commitHash": "c09c0cb7f7ab2bd571e2278c730a29f3d81eef8a",
+        "lane": 2,
+        "parentLinks": [
+          {
+            "hash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+            "lane": 0
+          }
+        ],
+        "primaryBranchName": "task/task-1766594717685-9097f3",
+        "branchColor": "#4fe8b8",
+        "branchTags": [],
+        "index": 4
+      },
+      {
+        "type": "commit",
+        "label": "Improve reply detection stability",
+        "commit": {
+          "hash": "418686c47781ff14587157f7d62900c7e382f8d4",
+          "subject": "Improve reply detection stability",
+          "author": "nyattoh",
+          "timestamp": 1766595600,
+          "parents": [
+            "b192779149c27a573bd3ae8a08f69e5f6081a543"
+          ],
+          "parent": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+          "refs": "",
+          "branches": [
+            "task/task-1766594717484-eaa9de"
+          ]
+        },
+        "commitHash": "418686c47781ff14587157f7d62900c7e382f8d4",
+        "lane": 3,
+        "parentLinks": [
+          {
+            "hash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+            "lane": 0
+          }
+        ],
+        "primaryBranchName": "task/task-1766594717484-eaa9de",
+        "branchColor": "#e84f7f",
+        "branchTags": [],
+        "index": 5
+      },
+      {
+        "type": "unstaged",
+        "label": "未ステージ (11)",
+        "files": [
+          ".kamui/apps/kamui-os-intro-20251125.css",
+          ".kamui/apps/kamui-os-intro-20251125.html",
+          ".kamui/apps/kamui-os-intro-20251125.js",
+          ".kamui/gantte/test.yaml",
+          ".kamui/manager/202512250214_eval_task-1766594720396-822b9c.html",
+          ".kamui/model-versions-cache.json",
+          ".kamui/prompt/launch-prompt.txt",
+          ".kamui/prompt/merge-prompt.txt",
+          ".kamui/prompt/restart-prompt.txt",
+          ".kamui/prompt/stop-prompt.txt",
+          ".kamui/tasks-state.json"
+        ],
+        "branch": "main",
+        "targetCommitHash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+        "worktreePath": "D:/kamui4d/llm-rally",
+        "timestamp": 1766643807943,
+        "sortOrder": 0,
+        "lane": 0,
+        "branchColor": "#4f85e8",
+        "index": 6
+      },
+      {
+        "type": "anchor",
+        "label": "[main]",
+        "branch": "main",
+        "worktreePath": "D:/kamui4d/llm-rally",
+        "parentCommitHash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+        "lane": 0,
+        "isMerged": false,
+        "mergeCommitHash": null,
+        "statusChildren": [
+          {
+            "type": "unstaged",
+            "label": "未ステージ (11)",
+            "files": [
+              ".kamui/apps/kamui-os-intro-20251125.css",
+              ".kamui/apps/kamui-os-intro-20251125.html",
+              ".kamui/apps/kamui-os-intro-20251125.js",
+              ".kamui/gantte/test.yaml",
+              ".kamui/manager/202512250214_eval_task-1766594720396-822b9c.html",
+              ".kamui/model-versions-cache.json",
+              ".kamui/prompt/launch-prompt.txt",
+              ".kamui/prompt/merge-prompt.txt",
+              ".kamui/prompt/restart-prompt.txt",
+              ".kamui/prompt/stop-prompt.txt",
+              ".kamui/tasks-state.json"
+            ],
+            "branch": "main",
+            "targetCommitHash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+            "worktreePath": "D:/kamui4d/llm-rally",
+            "timestamp": 1766643807943,
+            "sortOrder": 0,
+            "lane": 0,
+            "branchColor": "#4f85e8",
+            "index": 6
+          }
+        ],
+        "isDefaultWorktree": false,
+        "renderMode": "node",
+        "shouldHide": false,
+        "tagLabel": "main",
+        "taskId": "main",
+        "taskStatus": null,
+        "taskStatusLabel": null,
+        "taskName": null,
+        "tooltip": "ID: main\nBranch: main\nWorktree: D:/kamui4d/llm-rally",
+        "branchColor": "#4f85e8",
+        "index": 7
+      },
+      {
+        "type": "commit",
+        "label": "Initial commit: llm-rally tool",
+        "commit": {
+          "hash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+          "subject": "Initial commit: llm-rally tool",
+          "author": "nyattoh",
+          "timestamp": 1766463547,
+          "parents": [],
+          "parent": null,
+          "refs": "HEAD -> main, task/task-1766594720396-822b9c",
+          "branches": [
+            "HEAD -> main",
+            "task/task-1766594720396-822b9c",
+            "main",
+            "task/task-1766594717484-eaa9de",
+            "task/task-1766594717685-9097f3",
+            "task/task-1766594717885-5f8a30"
+          ]
+        },
+        "commitHash": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+        "lane": 0,
+        "parentLinks": [],
+        "primaryBranchName": "main",
+        "branchColor": "#4f85e8",
+        "branchTags": [
+          "task/task-1766594720396-822b9c"
+        ],
+        "worktrees": [
+          {
+            "path": "D:/kamui4d/llm-rally",
+            "head": "b192779149c27a573bd3ae8a08f69e5f6081a543",
+            "branch": "main",
+            "isMerged": false,
+            "mergeCommitHash": null,
+            "status": {
+              "staged": [],
+              "unstaged": [],
+              "untracked": [
+                {
+                  "path": ".kamui/apps/kamui-os-intro-20251125.css",
+                  "status": "untracked",
+                  "rawPath": ".kamui/apps/kamui-os-intro-20251125.css",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/apps/kamui-os-intro-20251125.html",
+                  "status": "untracked",
+                  "rawPath": ".kamui/apps/kamui-os-intro-20251125.html",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/apps/kamui-os-intro-20251125.js",
+                  "status": "untracked",
+                  "rawPath": ".kamui/apps/kamui-os-intro-20251125.js",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/gantte/test.yaml",
+                  "status": "untracked",
+                  "rawPath": ".kamui/gantte/test.yaml",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/manager/202512250214_eval_task-1766594720396-822b9c.html",
+                  "status": "untracked",
+                  "rawPath": ".kamui/manager/202512250214_eval_task-1766594720396-822b9c.html",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/model-versions-cache.json",
+                  "status": "untracked",
+                  "rawPath": ".kamui/model-versions-cache.json",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/prompt/launch-prompt.txt",
+                  "status": "untracked",
+                  "rawPath": ".kamui/prompt/launch-prompt.txt",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/prompt/merge-prompt.txt",
+                  "status": "untracked",
+                  "rawPath": ".kamui/prompt/merge-prompt.txt",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/prompt/restart-prompt.txt",
+                  "status": "untracked",
+                  "rawPath": ".kamui/prompt/restart-prompt.txt",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/prompt/stop-prompt.txt",
+                  "status": "untracked",
+                  "rawPath": ".kamui/prompt/stop-prompt.txt",
+                  "timestamp": 1766643806121
+                },
+                {
+                  "path": ".kamui/tasks-state.json",
+                  "status": "untracked",
+                  "rawPath": ".kamui/tasks-state.json",
+                  "timestamp": 1766643806121
+                }
+              ],
+              "capturedAt": 1766643806121
+            },
+            "normalizedPath": "D:/kamui4d/llm-rally",
+            "lane": 0
+          }
+        ],
+        "index": 8
+      },
+      {
+        "type": "empty",
+        "label": "初期状態 (初回コミット以前)",
+        "files": [],
+        "marker": "pre-history",
+        "index": 9
+      }
+    ]
+  },
+  "projectRoot": "D:/kamui4d/llm-rally",
+  "savedAt": 1766643812171
+}

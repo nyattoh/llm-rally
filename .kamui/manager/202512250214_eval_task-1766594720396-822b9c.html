@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang=\"ja\">
+  <head>
+    <meta charset=\"utf-8\" />
+    <title>LLM Rally 評価レポート</title>
+    <style>
+      body { font-family: \"Hiragino Sans\", \"Noto Sans JP\", system-ui, -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.6; margin: 24px; background-color: #e9f0f2; color: #1f2a30; }
+      .monitor-wrapper { max-width: 1180px; margin: 0 auto; padding: 32px; background: #ffffff; border: 1px solid #c4d3d7; }
+      .monitor-header { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+      .monitor-title { font-size: 26px; font-weight: 700; letter-spacing: 0.04em; color: #1f2a30; }
+      .monitor-description { font-size: 14px; color: #3a4b53; }
+      table.monitor-report { width: 100%; border-collapse: collapse; table-layout: fixed; background: #ffffff; border: 1px solid #c4d3d7; }
+      col.timestamp-column { width: 180px; }
+      col.agent-column { width: calc((100% - 180px) / 3); }
+      th, td { border: 1px solid #c4d3d7; padding: 16px; vertical-align: top; background-color: #ffffff; }
+      th { background: #d8e6e9; text-align: left; font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: #2c3a40; }
+      tbody tr:nth-child(even) td { background-color: #eef3f4; }
+      details { display: block; margin: 0; }
+      details summary { list-style: none; cursor: pointer; }
+      details[open] summary { margin-bottom: 12px; }
+      .details-toggle { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500; font-size: 13px; color: #1f2a30; padding: 0; background: transparent; border: none; }
+      .timestamp { font-weight: 600; color: #2c3a40; overflow-wrap: anywhere; }
+      .agent-meta { display: block; margin-bottom: 8px; line-height: 1.5; }
+      .status-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.02em; padding: 1px 6px; background: #d8e6e9; border: 1px solid #b8c9cd; color: #1f2a30; white-space: nowrap; line-height: 1.3; vertical-align: top; margin-right: 6px; }
+      .status-badge--completed { background: #c3d4d8; border-color: #aabfc5; }
+      .score-total { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+      .score-total .medal { font-size: 26px; margin-right: 6px; }
+      .radar-svg { width: 100%; max-width: 220px; height: auto; display: block; margin-bottom: 8px; }
+      .metric-list { margin: 8px 0 0; padding-left: 16px; font-size: 13px; color: #2c3a40; }
+      .metric-list li { margin-bottom: 4px; }
+      .reason-list { font-size: 12px; color: #2c3a40; padding-left: 16px; }
+      .section-title { font-weight: 700; margin-top: 6px; margin-bottom: 4px; }
+      .diff-box { background: #f2f6f7; border: 1px solid #c4d3d7; padding: 10px; font-size: 12px; white-space: pre-wrap; }
+    </style>
+  </head>
+  <body>
+    <div class=\"monitor-wrapper\">
+      <header class=\"monitor-header\">
+        <h1 class=\"monitor-title\">LLM Rally 評価レポート</h1>
+        <p class=\"monitor-description\">つのLLMチャットUIを自動往復させるツールの実装ブランチを評価しました。基準: コード品質 / 機能正確性 / 安定性 / セキュリティ / UX/UI / ドキュメント・拡張性 (各100点, 合計600点)。</p>
+      </header>
+      <table class=\"monitor-report\">
+        <colgroup>
+          <col class=\"timestamp-column\" />
+          <col class=\"agent-column\" />
+          <col class=\"agent-column\" />
+          <col class=\"agent-column\" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>task-1766594717484-eaa9de</th>
+            <th>task-1766594717685-9097f3</th>
+            <th>task-1766594717885-5f8a30</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class=\"timestamp\">2025-12-25 02:14</td>
+            <td>
+              <div class=\"agent-meta\"><span class=\"status-badge status-badge--completed\">完了</span><span class=\"agent-label\">Chrome/Edge チャンネル指定と安定検知強化</span></div>
+              <div class=\"score-total\"><span class=\"medal\">🥈</span>409 / 600 (平均 68)</div>
+              <div class=\"radar\" data-id=\"task-1766594717484-eaa9de\"></div>
+              <div class=\"section-title\">主な評価理由</div>
+              <ul class=\"reason-list\">
+                <li>送信前後のテキスト差分を監視し新規メッセージを待つ処理で応答欠落を低減。</li>
+                <li>Playwrightチャンネルを指定しつつ失敗時はバンドルchromiumへフォールバック。</li>
+                <li>ログは最後に一括保存のみで途中エラー時に失われる・ブラウザを明示的に閉じない。</li>
+                <li>ドキュメント追加なしで運用手順が不透明。</li>
+              </ul>
+              <details>
+                <summary class=\"details-toggle\">コミットログ/差分</summary>
+                <div class=\"diff-box\">ae26839 Allow selecting system browser channel
+418686c Improve reply detection stability
+b192779 Initial commit: llm-rally tool
+
+Diff vs main:
+ package-lock.json | 59 ++++++++++++++++++++++
+ rally.mjs         | 47 +++++++++++++++++++++++
+ 2 files changed, 102 insertions(+), 4 deletions(-)
+成果物: .worktrees/task-1766594717484-eaa9de/</div>
+              </details>
+            </td>
+            <td>
+              <div class=\"agent-meta\"><span class=\"status-badge status-badge--completed\">完了</span><span class=\"agent-label\">Chrome常用 & 複数サイト対応・詳細ログ</span></div>
+              <div class=\"score-total\"><span class=\"medal\">🏆</span>512 / 600 (平均 86)</div>
+              <div class=\"radar\" data-id=\"task-1766594717685-9097f3\"></div>
+              <div class=\"section-title\">主な評価理由</div>
+              <ul class=\"reason-list\">
+                <li>ChatGPT/Grok/Claude/Gemini対応セレクタと詳細ログでデバッグ容易。</li>
+                <li>各ターン後にログを即保存し途中失敗でも結果を保全。</li>
+                <li>Chrome固定でフォールバックなしのためChrome未導入環境で起動失敗の恐れ。</li>
+                <li>応答待機は停止ボタン検知頼みで新着判定をしておらず送信失敗時に前メッセージを誤取得するリスク。</li>
+                <li>README / EXAMPLES を拡充し利用手順が明確。</li>
+              </ul>
+              <details>
+                <summary class=\"details-toggle\">コミットログ/差分</summary>
+                <div class=\"diff-box\">574ef98 Use system Chrome instead of Playwright Chromium
+c09c0cb LLM Rally tool: バグ修正と機能強化
+b192779 Initial commit: llm-rally tool
+
+Diff vs main:
+ .gitignore   |  19 ++++++
+ EXAMPLES.md  | 195 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ README.md    | 126 +++++++++++++++++++++++++++++++++++---
+ package.json |  12 +++-
+ rally.mjs    | 181 +++++++++++++++++++++++++++++++++++++++++-------------
+ sites.json   |  36 ++++++++---
+ 6 files changed, 510 insertions(+), 59 deletions(-)
+成果物: .worktrees/task-1766594717685-9097f3/</div>
+              </details>
+            </td>
+            <td>
+              <div class=\"agent-meta\"><span class=\"status-badge status-badge--completed\">完了</span><span class=\"agent-label\">WebKit既定とエラー時スクリーンショット</span></div>
+              <div class=\"score-total\"><span class=\"medal\">🥉</span>255 / 600 (平均 42)</div>
+              <div class=\"radar\" data-id=\"task-1766594717885-5f8a30\"></div>
+              <div class=\"section-title\">主な評価理由</div>
+              <ul class=\"reason-list\">
+                <li>WebKit固定でChatGPT/Grokが弾かれる可能性が高く実行互換性が低い。</li>
+                <li>lastMessageセレクタが先頭メッセージを指し続け、新規応答を待てず誤った出力を返す重大バグ。</li>
+                <li>ログ保存は終了時のみで途中失敗時に情報が失われる。</li>
+                <li>最小限のセレクタ更新のみでドキュメントやUI改善が無い。</li>
+              </ul>
+              <details>
+                <summary class=\"details-toggle\">コミットログ/差分</summary>
+                <div class=\"diff-box\">128f467 feat: Use WebKit as default browser and update selectors
+b192779 Initial commit: llm-rally tool
+
+Diff vs main:
+ .gitignore |  2 ++
+ rally.mjs  | 22 +++++++++++++---------
+ sites.json | 12 ++++++------
+ 3 files changed, 21 insertions(+), 15 deletions(-)
+成果物: .worktrees/task-1766594717885-5f8a30/</div>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <script>
+      const metricLabels = ["コード品質","機能正確性","安定性","セキュリティ","UX/UI","ドキュメント/拡張性"];
+      window.RADAR_DATA = {
+        "task-1766594717484-eaa9de": { scores: [74,75,70,80,60,50], total: 409 },
+        "task-1766594717685-9097f3": { scores: [85,82,80,85,88,92], total: 512 },
+        "task-1766594717885-5f8a30": { scores: [45,30,40,70,40,30], total: 255 }
+      };
+      const buildPath = scores => {
+        const cx = 85, cy = 85, R = 70, n = scores.length;
+        return scores.map((s,i) => {
+          const ang = -Math.PI/2 + i * 2*Math.PI/n;
+          const r = R * (s/100);
+          const x = cx + r * Math.cos(ang);
+          const y = cy + r * Math.sin(ang);
+          return ${i ? 'L' : 'M'},;
+        }).join(' ') + ' Z';
+      };
+      const gridPath = lvl => buildPath(Array(6).fill(lvl));
+      document.querySelectorAll('.radar').forEach(el => {
+        const id = el.dataset.id;
+        const data = window.RADAR_DATA[id];
+        if (!data) return;
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 170 170');
+        svg.classList.add('radar-svg');
+        const g = document.createElementNS(svg.namespaceURI, 'g');
+        g.setAttribute('transform', 'translate(0,0)');
+        [1,0.75,0.5,0.25].forEach(lvl => {
+          const path = document.createElementNS(svg.namespaceURI, 'path');
+          path.setAttribute('d', buildPath(Array(6).fill(100*lvl)));
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', '#c4d3d7');
+          path.setAttribute('stroke-width', '1');
+          path.setAttribute('opacity', 0.7);
+          g.appendChild(path);
+        });
+        // axes
+        for (let i=0; i<6; i++) {
+          const ang = -Math.PI/2 + i*2*Math.PI/6;
+          const x = 85 + 70*Math.cos(ang);
+          const y = 85 + 70*Math.sin(ang);
+          const line = document.createElementNS(svg.namespaceURI, 'line');
+          line.setAttribute('x1','85'); line.setAttribute('y1','85');
+          line.setAttribute('x2', x); line.setAttribute('y2', y);
+          line.setAttribute('stroke','#c4d3d7'); line.setAttribute('stroke-width','1'); line.setAttribute('opacity','0.7');
+          svg.appendChild(line);
+          const label = document.createElementNS(svg.namespaceURI, 'text');
+          label.setAttribute('x', 85 + 80*Math.cos(ang));
+          label.setAttribute('y', 88 + 80*Math.sin(ang));
+          label.setAttribute('text-anchor','middle');
+          label.setAttribute('font-size','9');
+          label.setAttribute('fill','#1f2a30');
+          label.textContent = metricLabels[i];
+          svg.appendChild(label);
+        }
+        const poly = document.createElementNS(svg.namespaceURI, 'path');
+        poly.setAttribute('d', buildPath(data.scores));
+        poly.setAttribute('fill', '#5fb0e9');
+        poly.setAttribute('stroke', '#1f6fb8');
+        poly.setAttribute('stroke-width', '2');
+        poly.setAttribute('opacity', '0.45');
+        svg.appendChild(g);
+        svg.appendChild(poly);
+        el.appendChild(svg);
+        const list = document.createElement('ul');
+        list.className = 'metric-list';
+        data.scores.forEach((s,idx)=>{
+          const li = document.createElement('li');
+          li.textContent = ${metricLabels[idx]} 点;
+          list.appendChild(li);
+        });
+        el.appendChild(list);
+      });
+    </script>
+  </body>
+</html>

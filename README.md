@@ -40,6 +40,27 @@ echo "AIの登場で、日本の義務教育以後の教育はどうなるだろ
 node rally.mjs --rounds 5 --a chatgpt --b grok --first chatgpt
 ```
 
+## Browser
+既定のブラウザを使う場合:
+```bash
+node rally.mjs --default-browser
+```
+
+Chrome DevTools (CDP) で起動済みのChromeに接続する場合:
+```bash
+node rally.mjs --cdp http://localhost:9222
+```
+※ Chrome DevTools MCPなどで既存Chromeを起動している場合も、CDPエンドポイントに接続できます。
+
+任意のブラウザを指定する場合:
+```bash
+node rally.mjs --browser chromium
+node rally.mjs --browser firefox
+node rally.mjs --browser webkit
+node rally.mjs --browser chromium --channel chrome   # インストール済みChrome
+node rally.mjs --browser chromium --channel msedge   # インストール済みEdge
+```
+
 ### オプション
 - `--a <サイト名>`: サイトA（デフォルト: chatgpt）
 - `--b <サイト名>`: サイトB（デフォルト: grok）

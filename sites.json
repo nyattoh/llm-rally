@@ -3,16 +3,24 @@
     "name": "ChatGPT",
     "url": "https://chatgpt.com/",
     "selectors": {
+<<<<<<< HEAD
       "input": "textarea#prompt-textarea, textarea[placeholder*='Message']",
       "sendButton": "button[data-testid='send-button']",
       "lastMessage": "[data-message-author-role='assistant']:last-of-type",
       "stopButton": "button[aria-label='Stop generating'], button:has-text('Stop generating')"
+=======
+      "input": "textarea",
+      "sendButton": null,
+      "lastMessage": "[data-message-author-role='assistant']",
+      "stopButton": null
+>>>>>>> main
     }
   },
   "grok": {
     "name": "Grok",
     "url": "https://grok.com/",
     "selectors": {
+<<<<<<< HEAD
       "input": "textarea[placeholder*='Ask'], textarea",
       "sendButton": "button[type='submit'], button[aria-label='Send']",
       "lastMessage": "[role='article']:last-of-type, .message:last-of-type, div[data-testid='message']:last-of-type",
@@ -37,6 +45,12 @@
       "sendButton": "button[aria-label*='Send']",
       "lastMessage": "message-content:last-of-type",
       "stopButton": "button[aria-label='Stop generating']"
+=======
+      "input": "textarea",
+      "sendButton": null,
+      "lastMessage": ".message.assistant",
+      "stopButton": null
+>>>>>>> main
     }
   }
 }
