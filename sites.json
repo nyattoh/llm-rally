@@ -5,7 +5,7 @@
     "selectors": {
       "input": "textarea",
       "sendButton": null,
-      "lastMessage": "[data-message-author-role='assistant'] >> nth=-1",
+      "lastMessage": "[data-message-author-role='assistant']",
       "stopButton": null
     }
   },
@@ -15,7 +15,7 @@
     "selectors": {
       "input": "textarea",
       "sendButton": null,
-      "lastMessage": ".message.assistant >> nth=-1",
+      "lastMessage": ".message.assistant",
       "stopButton": null
     }
   }
