@@ -263,12 +263,33 @@ async function main() {
   try {
     for (let r = 1; r <= ROUNDS; r++) {
       console.log(`\n--- Round ${r}/${ROUNDS} ---`);
-      for (const key of [turnKey, (turnKey === A_KEY ? B_KEY : A_KEY)]) {
+
+      const turnOrder = [turnKey, (turnKey === A_KEY ? B_KEY : A_KEY)];
+
+      for (let i = 0; i < turnOrder.length; i++) {
+        const key = turnOrder[i];
         const site = getSite(key);
         const page = (key === A_KEY ? pageA : pageB);
+
+        let inputToSubmit = current;
+
+        // Add instructions for the very first turn of each AI
+        const isFirstTurnOfA = (r === 1 && turnKey === A_KEY && i === 0) || (r === 1 && turnKey === B_KEY && i === 1);
+        const isFirstTurnOfB = (r === 1 && turnKey === B_KEY && i === 0) || (r === 1 && turnKey === A_KEY && i === 1);
+
+        if (r === 1) {
+          if (i === 0) {
+            // First AI to speak in the rally
+            inputToSubmit = `今から他のAIと対話してもらいます。後述の題材についてよく考えて意見をだしてください。初回出力後は、他のAIからの返信を貼っていくので、それに回答する形で議論を進めてください。\n\n議題: ${current}`;
+          } else {
+            // Second AI to speak in the rally
+            inputToSubmit = `現在他のAIと後述の議題について話しています。回答を貼るので、それに答える形で議論を進めてください。\n\n議題: ${seed}\n\n相手の回答: ${current}`;
+          }
+        }
+
         console.log(`\n[${site.name}] Turn`);
-        const out = await askAndGet(page, site, current);
-        log.push({ ts: nowIso(), type: "turn", round: r, who: key, input: current, output: out });
+        const out = await askAndGet(page, site, inputToSubmit);
+        log.push({ ts: nowIso(), type: "turn", round: r, who: key, input: inputToSubmit, output: out });
         fs.writeFileSync(OUT_FILE, JSON.stringify(log, null, 2));
         current = out;
       }
