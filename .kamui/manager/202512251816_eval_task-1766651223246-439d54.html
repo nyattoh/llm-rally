@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>LLM Rally 評価レポート</title>
+    <style>
+      body {
+        font-family: "Hiragino Sans", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        margin: 24px;
+        background-color: #e9f0f2;
+        color: #1f2a30;
+      }
+      .monitor-wrapper {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px;
+        background: #ffffff;
+        border: 1px solid #c4d3d7;
+      }
+      .monitor-header {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+      .monitor-title {
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #1f2a30;
+      }
+      .monitor-description {
+        font-size: 14px;
+        color: #3a4b53;
+      }
+      .score-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .score-card {
+        border: 1px solid #c4d3d7;
+        padding: 14px;
+        background: #f6f9fa;
+      }
+      .score-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2c3a40;
+        margin-bottom: 6px;
+      }
+      .score-total {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .score-note {
+        font-size: 12px;
+        color: #3a4b53;
+      }
+      table.monitor-report {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        background: #ffffff;
+        border: 1px solid #c4d3d7;
+      }
+      col.timestamp-column {
+        width: 180px;
+      }
+      col.agent-column {
+        width: calc((100% - 180px) / 3);
+      }
+      th,
+      td {
+        border: 1px solid #c4d3d7;
+        padding: 16px;
+        vertical-align: top;
+        background-color: #ffffff;
+      }
+      th {
+        background: #d8e6e9;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #2c3a40;
+      }
+      tbody tr:nth-child(even) td {
+        background-color: #eef3f4;
+      }
+      details {
+        display: block;
+        margin: 0;
+      }
+      details summary {
+        list-style: none;
+      }
+      details[open] summary {
+        margin-bottom: 12px;
+      }
+      .details-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 13px;
+        color: #1f2a30;
+        padding: 0;
+        background: transparent;
+        border: none;
+      }
+      .timestamp {
+        font-weight: 600;
+        color: #2c3a40;
+        overflow-wrap: anywhere;
+      }
+      .agent-meta {
+        display: block;
+        margin-bottom: 8px;
+        line-height: 1.5;
+      }
+      .status-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        padding: 1px 6px;
+        background: #d8e6e9;
+        border: 1px solid #b8c9cd;
+        color: #1f2a30;
+        white-space: nowrap;
+        line-height: 1.3;
+        vertical-align: top;
+        margin-right: 6px;
+      }
+      .status-badge--completed {
+        background: #c3d4d8;
+        border-color: #aabfc5;
+      }
+      .radar-svg {
+        width: 100%;
+        max-width: 220px;
+        height: auto;
+        display: block;
+        margin-bottom: 8px;
+      }
+      .metric-list {
+        margin: 6px 0 0;
+        padding-left: 16px;
+        font-size: 12px;
+        color: #2c3a40;
+      }
+      .metric-list li {
+        margin-bottom: 2px;
+      }
+      .reason-list {
+        font-size: 12px;
+        color: #2c3a40;
+        padding-left: 16px;
+        margin-top: 6px;
+      }
+      .reason-list li {
+        margin-bottom: 4px;
+      }
+      .section-title {
+        font-weight: 700;
+        margin-top: 10px;
+        margin-bottom: 4px;
+        font-size: 13px;
+      }
+      .diff-box {
+        background: #f2f6f7;
+        border: 1px solid #c4d3d7;
+        padding: 10px;
+        font-size: 12px;
+        white-space: pre-wrap;
+      }
+      .artifact-link {
+        font-size: 12px;
+        color: #2c3a40;
+        margin-bottom: 8px;
+      }
+      .artifact-link a {
+        color: #1f6fb8;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="monitor-wrapper">
+      <header class="monitor-header">
+        <h1 class="monitor-title">LLM Rally 評価レポート</h1>
+        <p class="monitor-description">Playwrightで2つのLLMチャットUIを往復させるツールの完成度評価。ブラウザ選択/CDP対応、応答検知の安定化、ログ保存、複数サイト対応、デバッグ支援の実装を比較しました。監視対象が3ブランチのため比較表は3列構成です。各ブランチは未コミット差分のみ（コミットは初期コミットのみ）で評価しています。</p>
+      </header>
+
+      <section class="score-grid">
+        <div class="score-card">
+          <div class="score-title">task-1766651220283-b83275</div>
+          <div class="score-total">🥈 487 / 600</div>
+          <div class="score-note">平均 81点</div>
+        </div>
+        <div class="score-card">
+          <div class="score-title">task-1766651220482-a6b688</div>
+          <div class="score-total">🥉 470 / 600</div>
+          <div class="score-note">平均 78点</div>
+        </div>
+        <div class="score-card">
+          <div class="score-title">task-1766651220696-f61c5b</div>
+          <div class="score-total">— 343 / 600</div>
+          <div class="score-note">平均 57点</div>
+        </div>
+      </section>
+
+      <table class="monitor-report">
+        <colgroup>
+          <col class="timestamp-column" />
+          <col class="agent-column" />
+          <col class="agent-column" />
+          <col class="agent-column" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Agent task-1766651220283-b83275</th>
+            <th>Agent task-1766651220482-a6b688</th>
+            <th>Agent task-1766651220696-f61c5b</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="timestamp">2025-12-25 18:16</td>
+            <td>
+              <div class="agent-meta"><span class="status-badge status-badge--completed">完了</span><span class="agent-label">ブラウザ選択/CDP対応と応答検知強化</span></div>
+              <div class="score-total"><span class="medal">🥈</span>487 / 600 (平均 81)</div>
+              <div class="radar" data-id="task-1766651220283-b83275"></div>
+              <ul class="metric-list">
+                <li>コード品質 88点</li>
+                <li>動作確実性 86点</li>
+                <li>安定性 85点</li>
+                <li>セキュリティ 84点</li>
+                <li>UX/UI 74点</li>
+                <li>ドキュメント/拡張性 70点</li>
+              </ul>
+              <div class="section-title">指標別の理由</div>
+              <ul class="reason-list">
+                <li><strong>コード品質:</strong> ブラウザ解決/待機/ログ処理を関数分割し読みやすさが向上。</li>
+                <li><strong>動作確実性:</strong> 送信前後の要素数・テキスト変化を監視し応答取り違えを抑制。</li>
+                <li><strong>安定性:</strong> 安定テキスト検知の改善とSIGINT時のログ保存で耐障害性を強化。</li>
+                <li><strong>セキュリティ:</strong> 追加の外部依存はなく、CDP利用も明示フラグのみ。</li>
+                <li><strong>UX/UI:</strong> --browser/--channel/--cdp/--default-browser の選択肢で運用しやすい。</li>
+                <li><strong>ドキュメント/拡張性:</strong> READMEにブラウザ指定・セレクタ方針を追記したが運用手順は最小限。</li>
+              </ul>
+              <div class="section-title">成果物</div>
+              <div class="artifact-link">worktree: <a href="../../.worktrees/task-1766651220283-b83275/">.worktrees/task-1766651220283-b83275/</a> (別worktree)</div>
+              <details>
+                <summary class="details-toggle">コミットログ/差分</summary>
+                <div class="diff-box">Commit log:
+ b192779 Initial commit: llm-rally tool
+
+Working tree diff vs HEAD:
+ README.md  |  22 ++++++
+ rally.mjs  | 236 ++++++++++++++++++++++++++++++++++++++++++++++++++++++-------
+ sites.json |   4 +-
+ 3 files changed, 235 insertions(+), 27 deletions(-)</div>
+              </details>
+            </td>
+            <td>
+              <div class="agent-meta"><span class="status-badge status-badge--completed">完了</span><span class="agent-label">多サイト対応・詳細ログ・Chrome/Edge起動</span></div>
+              <div class="score-total"><span class="medal">🥉</span>470 / 600 (平均 78)</div>
+              <div class="radar" data-id="task-1766651220482-a6b688"></div>
+              <ul class="metric-list">
+                <li>コード品質 78点</li>
+                <li>動作確実性 68点</li>
+                <li>安定性 66点</li>
+                <li>セキュリティ 80点</li>
+                <li>UX/UI 86点</li>
+                <li>ドキュメント/拡張性 92点</li>
+              </ul>
+              <div class="section-title">指標別の理由</div>
+              <ul class="reason-list">
+                <li><strong>コード品質:</strong> パラメータ検証とログが追加された一方でロジックが肥大化。</li>
+                <li><strong>動作確実性:</strong> 停止ボタン/セレクタ依存が強く、セレクタ変化で誤取得の恐れ。</li>
+                <li><strong>安定性:</strong> ログ保存はラウンド単位で途中失敗時に欠損しやすい。</li>
+                <li><strong>セキュリティ:</strong> 既存のPlaywright/Chromeチャンネル利用のみで追加リスクは小。</li>
+                <li><strong>UX/UI:</strong> 実行ログとnpm scriptsが充実し操作性が高い。</li>
+                <li><strong>ドキュメント/拡張性:</strong> README拡充とMCPガイドで導入・拡張手順が明確。</li>
+              </ul>
+              <div class="section-title">成果物</div>
+              <div class="artifact-link">worktree: <a href="../../.worktrees/task-1766651220482-a6b688/">.worktrees/task-1766651220482-a6b688/</a> (別worktree)</div>
+              <details>
+                <summary class="details-toggle">コミットログ/差分</summary>
+                <div class="diff-box">Commit log:
+ b192779 Initial commit: llm-rally tool
+
+Working tree diff vs HEAD:
+ .gitignore   |  18 ++++++
+ README.md    | 191 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ package.json |  18 +++++-
+ rally.mjs    | 144 +++++++++++++++++++++++++++++++++++++-------
+ sites.json   |  36 ++++++++---
+ 5 files changed, 369 insertions(+), 38 deletions(-)
+ Untracked: rally-mcp.md</div>
+              </details>
+            </td>
+            <td>
+              <div class="agent-meta"><span class="status-badge status-badge--completed">完了</span><span class="agent-label">stealth導入と失敗時デバッグ保存</span></div>
+              <div class="score-total"><span class="medal">—</span>343 / 600 (平均 57)</div>
+              <div class="radar" data-id="task-1766651220696-f61c5b"></div>
+              <ul class="metric-list">
+                <li>コード品質 68点</li>
+                <li>動作確実性 55点</li>
+                <li>安定性 50点</li>
+                <li>セキュリティ 72点</li>
+                <li>UX/UI 60点</li>
+                <li>ドキュメント/拡張性 38点</li>
+              </ul>
+              <div class="section-title">指標別の理由</div>
+              <ul class="reason-list">
+                <li><strong>コード品質:</strong> エラーハンドリング追加は良いが固定待機や設定追加の整合性が弱い。</li>
+                <li><strong>動作確実性:</strong> 非停止ボタン時の固定5秒待機で長文出力が途切れる可能性。</li>
+                <li><strong>安定性:</strong> 15秒固定待機や追加依存により実行時間/互換性が不安定。</li>
+                <li><strong>セキュリティ:</strong> stealth導入はサイトポリシーに抵触する可能性があり注意が必要。</li>
+                <li><strong>UX/UI:</strong> デバッグスクリーンショットは有用だが運用ガイドが不足。</li>
+                <li><strong>ドキュメント/拡張性:</strong> README更新がなく、responseContainer等の新設定が未説明。</li>
+              </ul>
+              <div class="section-title">成果物</div>
+              <div class="artifact-link">worktree: <a href="../../.worktrees/task-1766651220696-f61c5b/">.worktrees/task-1766651220696-f61c5b/</a> (別worktree)</div>
+              <details>
+                <summary class="details-toggle">コミットログ/差分</summary>
+                <div class="diff-box">Commit log:
+ b192779 Initial commit: llm-rally tool
+
+Working tree diff vs HEAD:
+ package.json |   5 +-
+ rally.mjs    | 199 +++++++++++++++++++++++++++++++++++++----------------------
+ sites.json   |  13 ++--
+ 3 files changed, 135 insertions(+), 82 deletions(-)
+ Untracked: debug/, package-lock.json</div>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <script>
+      const metricLabels = ["コード品質","動作確実性","安定性","セキュリティ","UX/UI","ドキュメント/拡張性"];
+      const radarData = {
+        "task-1766651220283-b83275": { scores: [88,86,85,84,74,70], color: "#4d9fd6" },
+        "task-1766651220482-a6b688": { scores: [78,68,66,80,86,92], color: "#6bb88a" },
+        "task-1766651220696-f61c5b": { scores: [68,55,50,72,60,38], color: "#d88a6b" }
+      };
+      const size = 170;
+      const cx = 85;
+      const cy = 85;
+      const radius = 70;
+
+      function pointFor(value, index, total) {
+        const angle = -Math.PI / 2 + index * 2 * Math.PI / total;
+        const r = radius * (value / 100);
+        return [cx + r * Math.cos(angle), cy + r * Math.sin(angle)];
+      }
+
+      function buildPath(values) {
+        return values.map((v, i) => {
+          const pt = pointFor(v, i, values.length);
+          return (i === 0 ? "M" : "L") + " " + pt[0].toFixed(1) + " " + pt[1].toFixed(1);
+        }).join(" ") + " Z";
+      }
+
+      document.querySelectorAll('.radar').forEach(el => {
+        const id = el.dataset.id;
+        const data = radarData[id];
+        if (!data) return;
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', '0 0 170 170');
+        svg.classList.add('radar-svg');
+
+        const gridGroup = document.createElementNS(svg.namespaceURI, 'g');
+        [1, 0.75, 0.5, 0.25].forEach(lvl => {
+          const path = document.createElementNS(svg.namespaceURI, 'path');
+          path.setAttribute('d', buildPath(Array(6).fill(100 * lvl)));
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', '#c4d3d7');
+          path.setAttribute('stroke-width', '1');
+          path.setAttribute('opacity', '0.7');
+          gridGroup.appendChild(path);
+        });
+        svg.appendChild(gridGroup);
+
+        for (let i = 0; i < 6; i++) {
+          const angle = -Math.PI / 2 + i * 2 * Math.PI / 6;
+          const x = cx + radius * Math.cos(angle);
+          const y = cy + radius * Math.sin(angle);
+          const axis = document.createElementNS(svg.namespaceURI, 'line');
+          axis.setAttribute('x1', cx);
+          axis.setAttribute('y1', cy);
+          axis.setAttribute('x2', x);
+          axis.setAttribute('y2', y);
+          axis.setAttribute('stroke', '#c4d3d7');
+          axis.setAttribute('stroke-width', '1');
+          axis.setAttribute('opacity', '0.7');
+          svg.appendChild(axis);
+
+          const label = document.createElementNS(svg.namespaceURI, 'text');
+          label.setAttribute('x', cx + (radius + 12) * Math.cos(angle));
+          label.setAttribute('y', cy + (radius + 12) * Math.sin(angle));
+          label.setAttribute('text-anchor', 'middle');
+          label.setAttribute('font-size', '9');
+          label.setAttribute('fill', '#1f2a30');
+          label.textContent = metricLabels[i];
+          svg.appendChild(label);
+        }
+
+        const polygon = document.createElementNS(svg.namespaceURI, 'path');
+        polygon.setAttribute('d', buildPath(data.scores));
+        polygon.setAttribute('fill', data.color);
+        polygon.setAttribute('stroke', '#1f6fb8');
+        polygon.setAttribute('stroke-width', '2');
+        polygon.setAttribute('opacity', '0.45');
+        svg.appendChild(polygon);
+
+        el.appendChild(svg);
+      });
+    </script>
+  </body>
+</html>
