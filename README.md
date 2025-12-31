@@ -5,10 +5,11 @@ Playwrightを使って、2つのLLMチャットUIを自動で往復させるツ�
 ## 機能
 
 - 2つのLLMチャットUI間で自動的に質問と回答を往復
-- 各ターンの入出力をJSONファイルに記録
+- 各ターンの入出力をJSONファイルに記録（タイムスタンプ付きファイル名）
 - セッション保存によるログイン状態の維持
 - 詳細なログ出力でデバッグしやすい
 - 複数のLLMサイトに対応（ChatGPT、Grok、Claude、Gemini）
+- 高速な回答検知（ストリーミング状態監視、500msポーリング）
 
 ## セットアップ
 
@@ -20,7 +21,20 @@ npm install
 注意: このツールはシステムにインストールされているGoogle Chromeを使用します。
 Chromeがインストールされていない場合は、事前にインストールしてください。
 
-### 2. 初回ログイン
+### 2. 初回ログイン（推奨: CDPモード）
+
+**方法A: start_chrome.bat を使用（推奨）**
+```bash
+# 1. Chromeをデバッグモードで起動
+start_chrome.bat
+
+# 2. 開いたタブ（ChatGPT, Claude, Grok）で手動ログイン
+
+# 3. ログイン完了後、そのまま実行可能
+node rally.mjs --cdp http://127.0.0.1:9222 --rounds 3 --a chatgpt --b claude
+```
+
+**方法B: login-onlyモード**
 ```bash
 node rally.mjs --login-only
 ```
@@ -36,11 +50,23 @@ echo "AIの登場で、日本の義務教育以後の教育はどうなるだろ
 ```
 
 ### 2. 実行
+
+**CDPモード（推奨）**
+```bash
+# Chromeを起動（初回のみ）
+start_chrome.bat
+
+# 実行
+node rally.mjs --cdp http://127.0.0.1:9222 --rounds 3 --a chatgpt --b claude --first chatgpt
+```
+
+**自動起動モード**
 ```bash
 node rally.mjs --rounds 5 --a chatgpt --b grok --first chatgpt
 ```
 
-## Browser
+## ブラウザオプション
+
 既定のブラウザを使う場合:
 ```bash
 node rally.mjs --default-browser
@@ -48,9 +74,9 @@ node rally.mjs --default-browser
 
 Chrome DevTools (CDP) で起動済みのChromeに接続する場合:
 ```bash
-node rally.mjs --cdp http://localhost:9222
+node rally.mjs --cdp http://127.0.0.1:9222
 ```
-※ Chrome DevTools MCPなどで既存Chromeを起動している場合も、CDPエンドポイントに接続できます。
+※ `start_chrome.bat` でChromeを起動すると、ポート9222でCDP接続可能になります。
 
 任意のブラウザを指定する場合:
 ```bash
@@ -66,8 +92,9 @@ node rally.mjs --browser chromium --channel msedge   # インストール済みE
 - `--b <サイト名>`: サイトB（デフォルト: grok）
 - `--first <サイト名>`: 最初に質問するサイト（デフォルト: chatgpt）
 - `--rounds <数>`: 往復回数（デフォルト: 5）
-- `--out <ファイル名>`: 出力ファイル（デフォルト: log.json）
+- `--out <ファイル名>`: 出力ファイル（デフォルト: `logs/YYYYMMDD_HHmmss.json`）
 - `--seed-file <ファイル名>`: シードファイル（デフォルト: seed.txt）
+- `--cdp <URL>`: CDP接続先URL（例: http://127.0.0.1:9222）
 - `--login-only`: ログインのみ実行
 
 ### 対応サイト
@@ -78,24 +105,26 @@ node rally.mjs --browser chromium --channel msedge   # インストール済みE
 
 ## 出力
 
-実行結果は `log.json` に保存されます。
+実行結果は `logs/YYYYMMDD_HHmmss.json` に保存されます（タイムスタンプ付き）。
+`--out` オプションで任意のファイル名も指定可能です。
+
 ```json
 [
   {
-    "ts": "2025-01-01T00:00:00.000Z",
+    "ts": "2026-01-01T00:00:00.000Z",
     "type": "meta",
     "a": "chatgpt",
-    "b": "grok",
+    "b": "claude",
     "first": "chatgpt",
-    "rounds": 5
+    "rounds": 3
   },
   {
-    "ts": "2025-01-01T00:00:00.000Z",
+    "ts": "2026-01-01T00:00:00.000Z",
     "type": "seed",
     "text": "質問内容..."
   },
   {
-    "ts": "2025-01-01T00:00:00.000Z",
+    "ts": "2026-01-01T00:00:05.000Z",
     "type": "turn",
     "round": 1,
     "who": "chatgpt",
@@ -108,17 +137,34 @@ node rally.mjs --browser chromium --channel msedge   # インストール済みE
 ## トラブルシューティング
 
 ### セレクタが見つからない
-サイトのUIが変更された可能性があります。`sites.json` のセレクタを更新してください。
+サイトのUIが変更された可能性があります。
 
-ブラウザの開発者ツールで要素を確認して、適切なセレクタを見つけます。
+**セレクタテストツールを使用:**
+```bash
+# Chromeを起動
+start_chrome.bat
+
+# セレクタをテスト
+node test-selectors.mjs --site claude --cdp http://127.0.0.1:9222
+```
+
+問題があれば `sites.json` のセレクタを更新してください。
 
 ### タイムアウトエラー
 ネットワークが遅い場合や、LLMの応答が遅い場合に発生します。
-`rally.mjs` 内のタイムアウト値を調整してください。
+現在のタイムアウト設定:
+- 入力フィールド待機: 120秒
+- 応答開始待機: 60秒
+- 生成完了待機: 180秒
 
 ### ログインが保持されない
 `pw-profile` ディレクトリが削除されている可能性があります。
-再度 `--login-only` でログインしてください。
+再度 `--login-only` でログインするか、`start_chrome.bat` でChromeを起動してログインしてください。
+
+### CDPモードで接続できない
+1. すべてのChromeウィンドウを閉じる
+2. `start_chrome.bat` を実行してChromeを起動
+3. `node rally.mjs --cdp http://127.0.0.1:9222 ...` を実行
 
 ## カスタマイズ
 
@@ -132,23 +178,35 @@ node rally.mjs --browser chromium --channel msedge   # インストール済みE
     "selectors": {
       "input": "textarea.input",
       "sendButton": "button.send",
-      "lastMessage": ".message:last-of-type",
+      "lastMessage": ".message",
       "stopButton": "button.stop"
     }
   }
 }
 ```
 
+**注意**: `lastMessage` セレクタには `:last-of-type` を**使わないでください**。
+Playwrightの `.last()` メソッドで最後の要素を取得します。
+
 セレクタの見つけ方:
 1. サイトを開く
 2. 開発者ツール（F12）を開く
 3. 要素を選択して、適切なセレクタをコピー
+4. `test-selectors.mjs` でテスト
 
-### タイムアウトの調整
-`rally.mjs` 内の以下の値を調整できます。
-- 入力フィールド待機: 60秒（60000ms）
-- 応答待機: 120秒（120000ms）
-- 生成完了待機: 180秒（180000ms）
+## ファイル構成
+
+```
+llm-rally/
+├── rally.mjs           # メインスクリプト
+├── sites.json          # サイト設定（セレクタ）
+├── seed.txt            # シード質問
+├── start_chrome.bat    # Chrome起動スクリプト（Windows）
+├── test-selectors.mjs  # セレクタテストツール
+├── logs/               # ログ出力ディレクトリ
+└── pw-profile/         # Playwrightプロファイル（ログイン状態）
+```
 
 ## ライセンス
 MIT
+

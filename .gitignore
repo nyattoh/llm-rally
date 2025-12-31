@@ -6,6 +6,7 @@ pw-profile/
 
 # Output files
 log.json
+logs/
 *.log
 
 # OS files

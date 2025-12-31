@@ -20,7 +20,20 @@ const A_KEY = argValue("--a", "chatgpt");
 const B_KEY = argValue("--b", "grok");
 const FIRST = argValue("--first", "chatgpt");
 const ROUNDS = Number(argValue("--rounds", "5"));
-const OUT_FILE = argValue("--out", "log.json");
+
+// Generate timestamp-based log filename
+function generateLogFilename() {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+  return path.join("logs", `${timestamp}.json`);
+}
+
+const OUT_FILE = argValue("--out", null) || generateLogFilename();
+const LOGS_DIR = path.dirname(OUT_FILE);
+if (!fs.existsSync(LOGS_DIR)) {
+  fs.mkdirSync(LOGS_DIR, { recursive: true });
+}
 const SEED_FILE = argValue("--seed-file", "seed.txt");
 const LOGIN_ONLY = hasFlag("--login-only");
 const BROWSER = argValue("--browser", "chromium");
