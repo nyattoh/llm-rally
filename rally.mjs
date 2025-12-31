@@ -57,7 +57,6 @@ function detectDefaultBrowser() {
 
 function findRunningDebugPort() {
   if (process.platform !== "win32") return null;
-  // Look for chrome.exe with --remote-debugging-port in its command line
   const cmd = 'Get-CimInstance Win32_Process -Filter "name = \'chrome.exe\'" | Where-Object { $_.CommandLine -like "*--remote-debugging-port=*" } | Select-Object -ExpandProperty CommandLine';
   const out = safeExec(`powershell -NoProfile -Command "${cmd}"`);
   const match = out.match(/--remote-debugging-port=(\d+)/);
@@ -85,30 +84,67 @@ function resolveBrowserConfig() {
   return { mode: "launch", browserType: (browserName === "firefox" ? firefox : browserName === "webkit" ? webkit : chromium), channel, browserName };
 }
 
-async function waitForTextChange(locator, prevText, timeoutMs) {
+/**
+ * Wait for a new message to appear (count increases)
+ */
+async function waitForNewMessage(page, selector, prevCount, timeoutMs) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
-    try {
-      const cur = (await locator.innerText()).trim();
-      if (cur && cur !== prevText) return;
-    } catch { }
-    await sleep(1000);
+    const count = await page.locator(selector).count();
+    if (count > prevCount) {
+      return true;
+    }
+    await sleep(300);
   }
+  return false;
 }
 
+/**
+ * Wait for text to become stable (no changes for 2 consecutive checks)
+ */
 async function waitForStableText(locator, timeoutMs) {
   const start = Date.now();
   let prev = "";
-  let stable = 0;
+  let stableCount = 0;
+  const STABLE_THRESHOLD = 2; // Need 2 consecutive identical reads
+  const POLL_INTERVAL = 500; // Check every 500ms for faster response
+
   while (Date.now() - start < timeoutMs) {
     try {
-      const cur = (await locator.innerText()).trim();
-      if (cur && cur === prev && cur.length > 0) stable++;
-      else { stable = 0; prev = cur; }
-      if (stable >= 3) return;
+      const cur = (await locator.innerText({ timeout: 1000 })).trim();
+      if (cur && cur.length > 0) {
+        if (cur === prev) {
+          stableCount++;
+          if (stableCount >= STABLE_THRESHOLD) {
+            return cur;
+          }
+        } else {
+          stableCount = 0;
+          prev = cur;
+        }
+      }
     } catch { }
-    await sleep(2000);
+    await sleep(POLL_INTERVAL);
   }
+  return prev; // Return whatever we have on timeout
+}
+
+/**
+ * For Claude: wait for data-is-streaming to become "false"
+ */
+async function waitForStreamingComplete(page, selector, timeoutMs) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const lastEl = page.locator(selector).last();
+      const streaming = await lastEl.getAttribute("data-is-streaming", { timeout: 1000 });
+      if (streaming === "false") {
+        return true;
+      }
+    } catch { }
+    await sleep(300);
+  }
+  return false;
 }
 
 async function findOrCreatePage(ctx, site) {
@@ -129,12 +165,12 @@ async function findOrCreatePage(ctx, site) {
   return page;
 }
 
-// --- Main Logic ---
 async function askAndGet(page, site, text) {
   const { input, sendButton, lastMessage, stopButton } = site.selectors;
-  console.log(`  [${site.name}] Waiting for input: ${input}`);
+  console.log(`  [${site.name}] Waiting for input...`);
   const inputLoc = page.locator(input).first();
 
+  // Wait for input to be ready
   let ready = false;
   for (let i = 0; i < 10; i++) {
     try {
@@ -148,44 +184,82 @@ async function askAndGet(page, site, text) {
   if (!ready) {
     console.log(`  Refreshing ${site.name} as input was not found...`);
     await page.reload({ waitUntil: "domcontentloaded" });
-    await inputLoc.waitFor({ state: "visible", timeout: 60000 });
+    await inputLoc.waitFor({ state: "visible", timeout: 120000 });
   }
 
+  // Get current message count BEFORE sending
+  const prevCount = await page.locator(lastMessage).count();
+  console.log(`  Current message count: ${prevCount}`);
+
+  // Type and send
   await inputLoc.click();
-  try {
-    // Try fill first, if it's a contenteditable it might need focus or different approach
-    await inputLoc.fill("");
-    await inputLoc.fill(text);
-  } catch (e) {
-    console.warn("  Fill failed, trying sequentially...");
-    await inputLoc.pressSequentially(text, { delay: 10 });
-  }
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A');
+  await page.keyboard.press('Backspace');
+  await page.keyboard.insertText(text);
   await sleep(500);
 
-  const lastLoc = page.locator(lastMessage).last();
-  let prevText = "";
-  try { prevText = (await lastLoc.innerText()).trim(); } catch { }
-
   console.log(`  Sending message...`);
-  if (sendButton) await page.locator(sendButton).first().click();
-  else await inputLoc.press("Enter");
+  if (sendButton) {
+    const btn = page.locator(sendButton).first();
+    await btn.waitFor({ state: "visible", timeout: 120000 });
+    await btn.click();
+  } else {
+    await inputLoc.press("Enter");
+  }
 
-  console.log(`  Waiting for response to start...`);
-  await waitForTextChange(lastLoc, prevText, 60000);
+  // Wait for new message or text change
+  console.log(`  Waiting for response to appear...`);
+  const newMessageAppeared = await waitForNewMessage(page, lastMessage, prevCount, 60000);
 
-  console.log(`  Waiting for generation to finish...`);
-  if (stopButton) {
+  if (!newMessageAppeared) {
+    // Maybe count didn't change but text did - check last element
+    const lastLoc = page.locator(lastMessage).last();
+    const currentText = await lastLoc.innerText({ timeout: 3000 }).catch(() => "");
+    if (!currentText) {
+      throw new Error("No response appeared within timeout.");
+    }
+  }
+
+  // Get the last message locator
+  const lastLoc = page.locator(lastMessage).last();
+  console.log(`  Response started. Waiting for completion...`);
+
+  // Determine completion strategy based on site
+  let finalText = "";
+
+  if (site.name === "Claude") {
+    // For Claude: watch data-is-streaming attribute
+    const completed = await waitForStreamingComplete(page, lastMessage, 180000);
+    if (!completed) {
+      console.log(`  Warning: Streaming did not complete, using stable text fallback`);
+    }
+    await sleep(500); // Brief pause to ensure DOM is updated
+    finalText = await lastLoc.innerText({ timeout: 5000 }).catch(() => "");
+  } else if (stopButton) {
+    // For ChatGPT/others: watch stop button
     const stopLoc = page.locator(stopButton).first();
     try {
-      await stopLoc.waitFor({ state: "visible", timeout: 15000 });
+      await stopLoc.waitFor({ state: "visible", timeout: 10000 });
+      console.log(`  Stop button appeared, waiting for it to disappear...`);
       await stopLoc.waitFor({ state: "hidden", timeout: 180000 });
+      await sleep(300);
     } catch {
-      await waitForStableText(lastLoc, 120000);
+      // Stop button might not appear for short responses
     }
+    finalText = await waitForStableText(lastLoc, 30000);
   } else {
-    await waitForStableText(lastLoc, 180000);
+    // Fallback: wait for stable text
+    finalText = await waitForStableText(lastLoc, 120000);
   }
-  return (await lastLoc.innerText()).trim();
+
+  finalText = finalText.trim();
+
+  if (!finalText) {
+    throw new Error("Failed to extract response text.");
+  }
+
+  console.log(`  Got response (${finalText.length} chars)`);
+  return finalText;
 }
 
 async function main() {
@@ -216,21 +290,23 @@ async function main() {
     try {
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
+          const lockFile = path.join(USER_DATA_DIR, "SingletonLock");
+          if (fs.existsSync(lockFile)) {
+            try { fs.unlinkSync(lockFile); } catch (e) { }
+          }
           ctx = await browserConfig.browserType.launchPersistentContext(USER_DATA_DIR, options);
           break;
         } catch (e) {
-          if (e.message.includes("is already in use")) throw e;
+          if (e.message.includes("is already in use") || e.message.includes("closed")) {
+            // Just report it, don't crash yet, let it retry
+          }
           if (attempt === 3) throw e;
-          console.warn(`  Launch attempt ${attempt} failed: ${e.message}. Retrying...`);
-          await sleep(2000);
+          console.warn(`  Launch attempt ${attempt} failed: ${e.message.split("\n")[0]}. Retrying...`);
+          await sleep(5000);
         }
       }
     } catch (e) {
-      if (e.message.includes("is already in use")) {
-        console.error("\x1b[31mError: プロファイルが使用中です。既にブラウザが開いている場合は閉じるか、--cdp を使用してください。\x1b[0m");
-      } else {
-        console.error(`Launch failed: ${e.message}`);
-      }
+      console.error(`Launch failed: ${e.message}`);
       process.exit(1);
     }
   }
@@ -253,59 +329,62 @@ async function main() {
     return;
   }
 
-  const seed = fs.readFileSync(path.resolve(SEED_FILE), "utf-8").trim();
-  if (!seed) throw new Error("Seed text empty");
+  const seedContent = fs.readFileSync(path.resolve(SEED_FILE), "utf-8").trim();
+  if (!seedContent) throw new Error("Seed text empty");
 
-  let current = seed;
+  let current = seedContent;
   let turnKey = FIRST;
-  const log = [{ ts: nowIso(), type: "meta", a: A_KEY, b: B_KEY, first: FIRST, rounds: ROUNDS }, { ts: nowIso(), type: "seed", text: seed }];
+  const log = [{ ts: nowIso(), type: "meta", a: A_KEY, b: B_KEY, first: FIRST, rounds: ROUNDS }, { ts: nowIso(), type: "seed", text: seedContent }];
 
   try {
     for (let r = 1; r <= ROUNDS; r++) {
       console.log(`\n--- Round ${r}/${ROUNDS} ---`);
-
       const turnOrder = [turnKey, (turnKey === A_KEY ? B_KEY : A_KEY)];
 
       for (let i = 0; i < turnOrder.length; i++) {
         const key = turnOrder[i];
         const site = getSite(key);
         const page = (key === A_KEY ? pageA : pageB);
-
         let inputToSubmit = current;
-
-        // Add instructions for the very first turn of each AI
-        const isFirstTurnOfA = (r === 1 && turnKey === A_KEY && i === 0) || (r === 1 && turnKey === B_KEY && i === 1);
-        const isFirstTurnOfB = (r === 1 && turnKey === B_KEY && i === 0) || (r === 1 && turnKey === A_KEY && i === 1);
 
         if (r === 1) {
           if (i === 0) {
-            // First AI to speak in the rally
             inputToSubmit = `今から他のAIと対話してもらいます。後述の題材についてよく考えて意見をだしてください。初回出力後は、他のAIからの返信を貼っていくので、それに回答する形で議論を進めてください。\n\n議題: ${current}`;
           } else {
-            // Second AI to speak in the rally
-            inputToSubmit = `現在他のAIと後述の議題について話しています。回答を貼るので、それに答える形で議論を進めてください。\n\n議題: ${seed}\n\n相手の回答: ${current}`;
+            inputToSubmit = `現在他のAIと後述の議題について話しています。回答を貼るので、それに答える形で議論を進めてください。\n\n議題: ${seedContent}\n\n相手の回答: ${current}`;
           }
         }
 
         console.log(`\n[${site.name}] Turn`);
-        const out = await askAndGet(page, site, inputToSubmit);
-        log.push({ ts: nowIso(), type: "turn", round: r, who: key, input: inputToSubmit, output: out });
+
+        // Push initial log entry
+        const turnLog = { ts: nowIso(), type: "turn", round: r, who: key, input: inputToSubmit, output: "(generating...)" };
+        log.push(turnLog);
         fs.writeFileSync(OUT_FILE, JSON.stringify(log, null, 2));
-        current = out;
+
+        try {
+          current = await askAndGet(page, site, inputToSubmit);
+          turnLog.output = current; // Update output
+        } catch (e) {
+          turnLog.output = `(Error: ${e.message})`;
+          turnLog.error = true;
+          throw e; // Re-throw to handle screenshot/exit
+        }
+
+        // Update log with final result
+        fs.writeFileSync(OUT_FILE, JSON.stringify(log, null, 2));
       }
     }
     console.log("\n=== Rally Complete ===");
   } catch (e) {
     console.error(`\nError: ${e.message}`);
-    // Capture screenshot on error
     try {
       if (pageA) await pageA.screenshot({ path: "error_a.png" });
       if (pageB) await pageB.screenshot({ path: "error_b.png" });
       console.log("  Screenshots saved to error_a.png / error_b.png");
-    } catch (ssErr) {
-      console.warn("  Failed to capture error screenshot:", ssErr.message);
-    }
+    } catch (ssErr) { }
     fs.writeFileSync(OUT_FILE, JSON.stringify(log, null, 2));
+    process.exit(1);
   } finally {
     if (ctx && !CDP_URL) await ctx.close();
   }
