@@ -8,6 +8,13 @@ pw-profile/
 log.json
 logs/
 *.log
+log_2026生成クリエイティブ.json
+log_text.txt
+error_*.png
+
+# System / Internal
+.kamui/
+.worktrees/
 
 # OS files
 .DS_Store
