@@ -1,5 +1,7 @@
 # llm-rally
 
+![LLM Rally GUI](screen_shot.png)
+
 Playwrightを使って、2つのLLMチャットUIを自動で往復させるツールです。
 
 ## 機能

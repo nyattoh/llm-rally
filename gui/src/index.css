@@ -125,6 +125,11 @@ button.secondary {
   background: var(--caribbean-green);
 }
 
+button.tertiary {
+  background: var(--blue-ncs);
+  color: #fff;
+}
+
 button:disabled {
   opacity: 0.4;
   cursor: not-allowed;

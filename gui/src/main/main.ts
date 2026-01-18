@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import { spawn, ChildProcessWithoutNullStreams } from "node:child_process";
 import http from "node:http";
 import path from "node:path";
@@ -280,4 +280,15 @@ app.on("window-all-closed", () => {
 
 app.on("before-quit", () => {
   if (rallyProcess) rallyProcess.kill();
+});
+
+ipcMain.handle("save-file", async (_, { content, filterName, extensions }) => {
+  const { filePath } = await dialog.showSaveDialog({
+    filters: [{ name: filterName, extensions }],
+  });
+  if (filePath) {
+    await fs.promises.writeFile(filePath, content, "utf-8");
+    return { success: true, filePath };
+  }
+  return { success: false, message: "Cancelled" };
 });

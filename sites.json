@@ -6,7 +6,7 @@
       "input": "#prompt-textarea, textarea[placeholder*='Message']",
       "sendButton": "button[data-testid='send-button']",
       "lastMessage": "[data-message-author-role='assistant']",
-      "stopButton": "button[aria-label='Stop generating'], button:has-text('Stop generating')"
+      "stopButton": "button[data-testid='stop-button'], button[aria-label='Stop generating'], button:has-text('Stop generating')"
     }
   },
   "grok": {

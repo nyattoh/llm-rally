@@ -35,6 +35,7 @@ declare global {
       getLastErrorImages: () => Promise<{ errorA: string | null; errorB: string | null }>;
       onRallyLog: (callback: (line: string) => void) => () => void;
       onRallyStatus: (callback: (status: RallyStatus) => void) => () => void;
+      saveFile: (content: string, filterName: string, extensions: string[]) => Promise<{ success: boolean; filePath?: string; message?: string }>;
     };
   }
 }

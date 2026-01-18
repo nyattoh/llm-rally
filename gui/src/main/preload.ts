@@ -39,5 +39,6 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getRallyResult: () => ipcRenderer.invoke("get-rally-result"),
   getLastErrorImages: () => ipcRenderer.invoke("get-last-error-image"),
   onRallyLog: (callback: (line: string) => void) => createListener<string>("rally-log", callback),
-  onRallyStatus: (callback: (status: RallyStatus) => void) => createListener<RallyStatus>("rally-status", callback)
+  onRallyStatus: (callback: (status: RallyStatus) => void) => createListener<RallyStatus>("rally-status", callback),
+  saveFile: (content: string, filterName: string, extensions: string[]) => ipcRenderer.invoke("save-file", { content, filterName, extensions })
 });

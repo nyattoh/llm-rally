@@ -51,7 +51,7 @@ export default function App() {
     const stopLog = window.electronAPI.onRallyLog((line) => appendLog(line));
     const stopStatus = window.electronAPI.onRallyStatus(async (stat) => {
       setRallyStatus(`終了コード: ${stat.code ?? "-"}`);
-      setStatus(stat.code === 0 ? "completed" : "error");
+      setStatus("idle"); // Auto-reset to idle (Stop state) on completion
       setStatusMessage(`プロセスが終了しました (${stat.code})`);
       try {
         const result = await window.electronAPI.getRallyResult();
@@ -222,6 +222,33 @@ export default function App() {
     }
   };
 
+  const handleSaveResult = async (format: "json" | "markdown") => {
+    if (!logResult) return;
+    let content = "";
+    let filterName = "";
+    let ext = "";
+
+    if (format === "json") {
+      content = JSON.stringify(logResult, null, 2);
+      filterName = "JSON Files";
+      ext = "json";
+    } else {
+      content = logResult
+        .filter((entry: any) => entry.type === "turn")
+        .map((entry: any) => `## Round ${entry.round} - ${entry.who}\n\n${entry.output}\n`)
+        .join("\n---\n\n");
+      filterName = "Markdown Files";
+      ext = "md";
+    }
+
+    const result = await window.electronAPI.saveFile(content, filterName, [ext]);
+    if (result.success) {
+      alert(`保存しました: ${result.filePath}`);
+    } else if (result.message !== "Cancelled") {
+      alert(`保存失敗: ${result.message}`);
+    }
+  };
+
   const isRunning = status === "running";
   const canResume = status === "completed" || status === "error";
 
@@ -351,6 +378,17 @@ export default function App() {
                 Markdown を表示
               </button>
             </div>
+            {logResult && (
+              <div className="button-row" style={{ marginTop: '10px', marginBottom: '10px' }}>
+                <button className="secondary" onClick={() => handleSaveResult("json")}>
+                  Save JSON
+                </button>
+                <button className="tertiary" onClick={() => handleSaveResult("markdown")}>
+                  Save Markdown
+                </button>
+              </div>
+            )}
+
             <pre className="result-preview">
               {logResult && logResult.length > 0
                 ? resultMode === "json"
@@ -382,7 +420,7 @@ export default function App() {
             </div>
           </div>
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 }
