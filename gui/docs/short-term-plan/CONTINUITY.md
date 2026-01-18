@@ -1,0 +1,14 @@
+- Goal (incl. success criteria): Initialize git repository for `llm-rally-gui`, create Japanese README, and push to new public GitHub repository `nyattoh/llm-rally-gui` with MIT license.
+- Constraints/Assumptions:
+  - User is authenticated as `nyattoh` (Confirmed).
+  - Directory `d:/kamui4d/llm-rally-gui` exists (Confirmed).
+- Key decisions:
+  - Use GitHub CLI (`gh`) for remote creation.
+  - Create standard MIT license.
+- State:
+  - Done: Verified directory and auth status. Created implementation plan.
+  - Now: Waiting for plan approval.
+  - Next: `git init`, create files, `gh repo create`, push.
+- Open questions (UNCONFIRMED if needed): None.
+- Working set (files/ids/commands):
+  - `d:/kamui4d/llm-rally-gui`

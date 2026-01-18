@@ -4,6 +4,7 @@
     "url": "https://chatgpt.com/",
     "selectors": {
       "input": "#prompt-textarea, textarea[placeholder*='Message']",
+      "sendButton": "button[data-testid='send-button']",
       "lastMessage": "[data-message-author-role='assistant']",
       "stopButton": "button[aria-label='Stop generating'], button:has-text('Stop generating')"
     }
@@ -12,9 +13,10 @@
     "name": "Grok",
     "url": "https://grok.com/",
     "selectors": {
-      "input": "textarea, div[contenteditable='true']",
-      "lastMessage": "div.prose, .message-content",
-      "stopButton": "button[aria-label*='Stop']"
+      "input": "div.ProseMirror, div[contenteditable='true']",
+      "sendButton": "button[type='submit'], button[aria-label*='送信'], button[aria-label*='Send']",
+      "lastMessage": ".items-start .message-bubble",
+      "stopButton": "button:has-text('Stop'), button[aria-label*='Stop'], button[data-testid='stop-button']"
     }
   },
   "claude": {
@@ -30,8 +32,8 @@
     "name": "Gemini",
     "url": "https://gemini.google.com/",
     "selectors": {
-      "input": "div[contenteditable='true'], div.ql-editor.textarea, rich-textarea",
-      "sendButton": "button[aria-label*='Send Message'], button[aria-label*='メッセージを送信'], .send-button",
+      "input": "rich-textarea div.ql-editor, div.ql-editor.textarea, rich-textarea [contenteditable='true']",
+      "sendButton": ".send-button, button[aria-label*='送信'], button[aria-label*='Send']",
       "lastMessage": "model-response .model-response-text, model-response, .message-content",
       "stopButton": "button[aria-label*='Stop'], button:has-text('Stop')"
     }

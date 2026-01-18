@@ -1,0 +1,27 @@
+{
+  "name": "llm-rally-gui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/main/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k \"vite\" \"tsup src/main/main.ts src/main/preload.ts --format cjs --out-dir dist/main --external electron --watch --onSuccess \\\"electron .\\\"\"",
+    "build": "tsup src/main/main.ts src/main/preload.ts --format cjs --out-dir dist/main --external electron && vite build",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "concurrently": "^8.2.0",
+    "electron": "^29.4.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vite": "^5.0.12",
+    "vitest": "^1.3.1",
+    "wait-on": "^7.2.0"
+  }
+}

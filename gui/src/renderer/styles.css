@@ -1,0 +1,35 @@
+:root {
+  color-scheme: light;
+  font-family: "Merriweather", "Georgia", serif;
+  background: radial-gradient(circle at 20% 20%, #f7ecd0, #f1f1f7 45%, #cfd7ff 100%);
+  color: #1c1c1c;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.hero h1 {
+  font-size: 44px;
+  margin: 0 0 8px 0;
+}
+
+.hero p {
+  margin: 0;
+  font-size: 18px;
+}
+
+.card {
+  margin-top: 32px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(30, 33, 60, 0.15);
+}

@@ -1,5 +1,8 @@
 # Dependencies
 node_modules/
+dist/
+out/
+.claude/
 
 # Playwright profile (contains login session)
 pw-profile/

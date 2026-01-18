@@ -20,6 +20,18 @@ const A_KEY = argValue("--a", "chatgpt");
 const B_KEY = argValue("--b", "grok");
 const FIRST = argValue("--first", "chatgpt");
 const ROUNDS = Number(argValue("--rounds", "5"));
+const RESUME_FROM = argValue("--resume-from", null);
+const MODE = argValue("--mode", "neutral");
+console.log(`DEBUG: rally.mjs started with args: ${process.argv.join(" ")}`);
+console.log(`DEBUG: MODE=${MODE}, A=${A_KEY}, B=${B_KEY}`);
+
+const MODE_PROMPTS = {
+  debate: "あなたは討論者です。相手の意見の矛盾点を探し、論理的に反論を組み立ててください。違いを明確に示しながら、議論を盛り上げてください。",
+  co_create: "あなたは共創者です。相手のアイデアを尊重しつつ、それをさらに発展させる新しい提案を追加してください。協力的で創造的な姿勢を重視します。",
+  conclusion: "あなたはファシリテーターです。これまでの対話を要約し、共通点と結論を整理してください。一つの合意形成を目指してください。",
+  coder: "あなたたちはペアプログラミングを行います。最初のAI（コーダー）は要件に基づいてコードを書いてください。2番目のAI（レビュアー）はコードを評価し、バグ、改善点、設計上の問題を指摘してください。メタ認知的な視点でフィードバックを行い、より良いコードを目指してください。",
+  neutral: "他のAIと建設的な会話を行い、互いの意見を精査しながら進めてください。"
+};
 
 // Generate timestamp-based log filename
 function generateLogFilename() {
@@ -52,6 +64,7 @@ function nowIso() { return new Date().toISOString(); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function safeExec(command) {
+  const modeIntroduction = MODE_PROMPTS[MODE] || MODE_PROMPTS.neutral;
   try {
     return execSync(command, { stdio: ["ignore", "pipe", "ignore"] }).toString("utf-8").trim();
   } catch { return ""; }
@@ -100,7 +113,10 @@ function resolveBrowserConfig() {
 /**
  * Wait for a new message to appear (count increases)
  */
-async function waitForNewMessage(page, selector, prevCount, timeoutMs) {
+const NEW_MESSAGE_TIMEOUT = 10 * 60 * 1000; // 10min (for long-thinking models like o1)
+const STREAMING_TIMEOUT = 15 * 60 * 1000; // 15min
+
+async function waitForNewMessage(page, selector, prevCount, timeoutMs = NEW_MESSAGE_TIMEOUT) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     const count = await page.locator(selector).count();
@@ -160,6 +176,11 @@ async function waitForStreamingComplete(page, selector, timeoutMs) {
   return false;
 }
 
+function sanitizeInputForSite(text) {
+  if (!text) return text;
+  return text.replace(/\r?\n/g, "  ");
+}
+
 async function findOrCreatePage(ctx, site) {
   const pages = ctx.pages();
   for (const page of pages) {
@@ -205,16 +226,22 @@ async function askAndGet(page, site, text) {
   console.log(`  Current message count: ${prevCount}`);
 
   // Type and send
-  await inputLoc.click();
+  await inputLoc.click({ force: true });
   await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A');
   await page.keyboard.press('Backspace');
-  await page.keyboard.insertText(text);
+  if (site.name === "Gemini" || site.name === "Grok" || site.name === "ChatGPT") {
+    // ProseMirror-based editors need type() with delay for proper input
+    await page.keyboard.type(text, { delay: 10 });
+  } else {
+    await page.keyboard.insertText(text);
+  }
   await sleep(500);
 
   console.log(`  Sending message...`);
   if (sendButton) {
     const btn = page.locator(sendButton).first();
     await btn.waitFor({ state: "visible", timeout: 120000 });
+    await page.waitForTimeout(300);
     await btn.click();
   } else {
     await inputLoc.press("Enter");
@@ -222,7 +249,7 @@ async function askAndGet(page, site, text) {
 
   // Wait for new message or text change
   console.log(`  Waiting for response to appear...`);
-  const newMessageAppeared = await waitForNewMessage(page, lastMessage, prevCount, 60000);
+  const newMessageAppeared = await waitForNewMessage(page, lastMessage, prevCount);
 
   if (!newMessageAppeared) {
     // Maybe count didn't change but text did - check last element
@@ -242,7 +269,7 @@ async function askAndGet(page, site, text) {
 
   if (site.name === "Claude") {
     // For Claude: watch data-is-streaming attribute
-    const completed = await waitForStreamingComplete(page, lastMessage, 180000);
+    const completed = await waitForStreamingComplete(page, lastMessage, STREAMING_TIMEOUT);
     if (!completed) {
       console.log(`  Warning: Streaming did not complete, using stable text fallback`);
     }
@@ -344,17 +371,45 @@ async function main() {
 
   const seedContent = fs.readFileSync(path.resolve(SEED_FILE), "utf-8").trim();
   if (!seedContent) throw new Error("Seed text empty");
+  const modeIntroduction = MODE_PROMPTS[MODE] || MODE_PROMPTS.neutral;
 
   let current = seedContent;
   let turnKey = FIRST;
-  const log = [{ ts: nowIso(), type: "meta", a: A_KEY, b: B_KEY, first: FIRST, rounds: ROUNDS }, { ts: nowIso(), type: "seed", text: seedContent }];
+  let log = [];
+  let startRound = 1;
+  let startTurnIndex = 0;
+  if (RESUME_FROM) {
+    console.log(`Resuming from ${RESUME_FROM}`);
+    if (!fs.existsSync(RESUME_FROM)) throw new Error("Resume log not found");
+    log = JSON.parse(fs.readFileSync(RESUME_FROM, "utf-8"));
+    const turns = log.filter((entry) => entry.type === "turn");
+    const lastTurn = [...turns].reverse().find((entry) => entry.output);
+    if (lastTurn) {
+      current = lastTurn.output;
+      const turnsThisRound = turns.filter((entry) => entry.round === lastTurn.round);
+      if (turnsThisRound.length >= 2) {
+        startRound = lastTurn.round + 1;
+      } else {
+        startRound = lastTurn.round;
+        startTurnIndex = lastTurn.who === FIRST ? 1 : 0;
+      }
+      if (startTurnIndex >= 2) startTurnIndex = 0;
+      console.log(`Resuming at round ${startRound} turnIndex ${startTurnIndex}`);
+    }
+  } else {
+    log = [
+      { ts: nowIso(), type: "meta", a: A_KEY, b: B_KEY, first: FIRST, rounds: ROUNDS, mode: MODE },
+      { ts: nowIso(), type: "seed", text: seedContent }
+    ];
+  }
 
   try {
-    for (let r = 1; r <= ROUNDS; r++) {
+    for (let r = startRound; r <= ROUNDS; r++) {
       console.log(`\n--- Round ${r}/${ROUNDS} ---`);
       const turnOrder = [turnKey, (turnKey === A_KEY ? B_KEY : A_KEY)];
 
       for (let i = 0; i < turnOrder.length; i++) {
+        if (r === startRound && i < startTurnIndex) continue;
         const key = turnOrder[i];
         const site = getSite(key);
         const page = (key === A_KEY ? pageA : pageB);
@@ -362,9 +417,9 @@ async function main() {
 
         if (r === 1) {
           if (i === 0) {
-            inputToSubmit = `今から他のAIと対話してもらいます。後述の題材についてよく考えて意見をだしてください。初回出力後は、他のAIからの返信を貼っていくので、それに回答する形で議論を進めてください。\n\n議題: ${current}`;
+            inputToSubmit = `${modeIntroduction}\n\n今から他のAIと対話してもらいます。後述の題材についてよく考えて意見をだしてください。初回出力後は、他のAIからの返信を貼っていくので、それに回答する形で議論を進めてください。\n\n議題: ${current}`;
           } else {
-            inputToSubmit = `現在他のAIと後述の議題について話しています。回答を貼るので、それに答える形で議論を進めてください。\n\n議題: ${seedContent}\n\n相手の回答: ${current}`;
+            inputToSubmit = `${modeIntroduction}\n\n現在他のAIと後述の議題について話しています。回答を貼るので、それに答える形で議論を進めてください。\n\n議題: ${seedContent}\n\n相手の回答: ${current}`;
           }
         }
 
@@ -376,7 +431,8 @@ async function main() {
         fs.writeFileSync(OUT_FILE, JSON.stringify(log, null, 2));
 
         try {
-          current = await askAndGet(page, site, inputToSubmit);
+          const textToSend = sanitizeInputForSite(inputToSubmit);
+          current = await askAndGet(page, site, textToSend);
           turnLog.output = current; // Update output
         } catch (e) {
           turnLog.output = `(Error: ${e.message})`;

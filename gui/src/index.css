@@ -1,0 +1,229 @@
+:root {
+  --paradise-pink: #ef476fff;
+  --orange-yellow-crayola: #ffd166ff;
+  --caribbean-green: #06d6a0ff;
+  --blue-ncs: #118ab2ff;
+  --midnight-green-eagle-green: #073b4cff;
+
+  --border-weight: 4px;
+  --border-color: var(--midnight-green-eagle-green);
+  --panel-inner: var(--orange-yellow-crayola);
+  --text-primary: #000000;
+  --surface: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: "Space Grotesk", "Segoe UI", sans-serif;
+  font-weight: 700;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--surface);
+}
+
+.header {
+  padding: 24px;
+  border: var(--border-weight) solid var(--border-color);
+  border-radius: 0;
+  background: var(--panel-inner);
+}
+
+.header h1 {
+  margin: 0 0 8px 0;
+  font-size: 34px;
+}
+
+.header p {
+  margin: 0;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.panel,
+.panel-grid > .panel {
+  padding: 20px;
+  border: var(--border-weight) solid var(--border-color);
+  border-radius: 0;
+  background: var(--panel-inner);
+}
+
+.panel h2 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+}
+
+.panel p {
+  margin: 0 0 12px 0;
+}
+
+.panel .field {
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.panel input,
+.panel select,
+.panel textarea {
+  padding: 10px 12px;
+  border: var(--border-weight) solid var(--border-color);
+  border-radius: 0;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.panel textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.button-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: var(--border-weight) solid var(--border-color);
+  padding: 10px 16px;
+  border-radius: 0;
+  color: var(--text-primary);
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--orange-yellow-crayola);
+}
+
+button.primary {
+  background: var(--paradise-pink);
+}
+
+button.secondary {
+  background: var(--caribbean-green);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 0;
+  background: var(--panel-inner);
+  color: var(--text-primary);
+  font-weight: 700;
+  border: var(--border-weight) solid var(--border-color);
+}
+
+.status-row {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-top: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.result-area {
+  background: var(--panel-inner);
+  border: var(--border-weight) solid var(--border-color);
+  border-radius: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.result-toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.result-toolbar button.active {
+  border-color: var(--midnight-green-eagle-green);
+  background: #fff;
+}
+
+.resume-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.result-preview {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: "JetBrains Mono", "SFMono-Regular", monospace;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: var(--border-weight) solid var(--border-color);
+  padding: 12px;
+  border-radius: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.log-stream {
+  background: var(--surface);
+  border: var(--border-weight) solid var(--border-color);
+  border-radius: 0;
+  padding: 12px;
+  max-height: 180px;
+  overflow-y: auto;
+  font-family: "JetBrains Mono", "SFMono-Regular", monospace;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.log-line {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.log-index {
+  width: 32px;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.log-line span:last-child {
+  color: var(--text-primary);
+}
+
+.log-placeholder {
+  color: var(--text-primary);
+}
