@@ -212,8 +212,9 @@ export default function App() {
     setStatus("running");
     setStatusMessage("Rally 再開中...");
     setRallyStatus("Rally 再開中...");
-    setRallyLogs([]);
-    setLogResult(null);
+    // Do NOT clear logs/result to keep context
+    // setRallyLogs([]);
+    // setLogResult(null);
     const result = await window.electronAPI.resumeRally({ additionalRounds: additional, mode });
     setRallyStatus(result.message ?? (result.success ? `pid ${result.pid}` : "再開失敗"));
     if (!result.success) {
@@ -250,7 +251,7 @@ export default function App() {
   };
 
   const isRunning = status === "running";
-  const canResume = status === "completed" || status === "error";
+  const canResume = !isRunning && (status === "completed" || status === "error" || (status === "idle" && logResult !== null));
 
   return (
     <div className="app">
