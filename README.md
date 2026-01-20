@@ -16,6 +16,7 @@ Playwrightを使って、2つのLLMチャットUIを自動で往復させるツ�
 ## GitHubからダウンロードして使う
 
 このリポジトリを **GitHubの「Download ZIP」** で取得し、そのまま利用できます。
+※ macOS はリリース版を用意しないため、同様に GitHub から ZIP をダウンロードして本READMEの手順でセットアップしてください。
 
 ### 前提
 - Node.js（LTS推奨）
@@ -38,17 +39,7 @@ Playwrightを使って、2つのLLMチャットUIを自動で往復させるツ�
 - macOS: `start_gui.command` をダブルクリック
   - もし実行できない場合は、右クリック → 「開く」 を試してください。
 
----
 
-## リリース版（依存関係同梱ZIP）
-
-GitHub Releases に **依存関係とブラウザを含んだZIP** を置く想定です。
-このZIPは **install不要** で、解凍後に `start_gui` を起動できます。
-
-- Windows: `start_gui.bat`
-- macOS: `start_gui.command`
-
----
 
 ## 初回ログイン（推奨: CDPモード）
 
@@ -266,3 +257,4 @@ llm-rally/
 
 ## ライセンス
 MIT
+
