@@ -21,6 +21,9 @@ log_text.txt
 error_*.png
 seed_temp.txt
 
+# Release artifacts
+release/
+
 # System / Internal
 .kamui/
 .worktrees/

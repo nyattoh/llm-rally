@@ -40,6 +40,16 @@ Playwrightを使って、2つのLLMチャットUIを自動で往復させるツ�
 
 ---
 
+## リリース版（依存関係同梱ZIP）
+
+GitHub Releases に **依存関係とブラウザを含んだZIP** を置く想定です。
+このZIPは **install不要** で、解凍後に `start_gui` を起動できます。
+
+- Windows: `start_gui.bat`
+- macOS: `start_gui.command`
+
+---
+
 ## 初回ログイン（推奨: CDPモード）
 
 **start_chrome を使用（推奨）**
