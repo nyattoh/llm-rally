@@ -7,6 +7,7 @@ out/
 assets/
 gui/.agent/
 gui/assets/
+gui/dist/
 
 # Playwright profile (contains login session)
 pw-profile/
@@ -18,6 +19,7 @@ logs/
 log_2026生成クリエイティブ.json
 log_text.txt
 error_*.png
+seed_temp.txt
 
 # System / Internal
 .kamui/

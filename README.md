@@ -13,22 +13,42 @@ Playwrightを使って、2つのLLMチャットUIを自動で往復させるツ�
 - 複数のLLMサイトに対応（ChatGPT、Grok、Claude、Gemini）
 - 高速な回答検知（ストリーミング状態監視、500msポーリング）
 
-## セットアップ
+## GitHubからダウンロードして使う
 
-### 1. 依存関係のインストール
+このリポジトリを **GitHubの「Download ZIP」** で取得し、そのまま利用できます。
+
+### 前提
+- Node.js（LTS推奨）
+- Google Chrome（CDPモードで利用）
+
+### 初回セットアップ（最初の一回だけ）
+
+- Windows: `install.bat` をダブルクリック
+- macOS: `install.command` をダブルクリック
+  - もし実行できない場合は、右クリック → 「開く」 を試してください。
+
+この処理で以下がまとめて行われます:
+- ルートの `npm install`
+- `gui/` の `npm install`
+- `npx playwright install`
+
+### 起動
+
+- Windows: `start_gui.bat` をダブルクリック
+- macOS: `start_gui.command` をダブルクリック
+  - もし実行できない場合は、右クリック → 「開く」 を試してください。
+
+---
+
+## 初回ログイン（推奨: CDPモード）
+
+**start_chrome を使用（推奨）**
 ```bash
-npm install
-```
-
-注意: このツールはシステムにインストールされているGoogle Chromeを使用します。
-Chromeがインストールされていない場合は、事前にインストールしてください。
-
-### 2. 初回ログイン（推奨: CDPモード）
-
-**方法A: start_chrome.bat を使用（推奨）**
-```bash
-# 1. Chromeをデバッグモードで起動
+# Windows
 start_chrome.bat
+
+# macOS
+./start_chrome.command
 
 # 2. 開いたタブ（ChatGPT, Claude, Grok）で手動ログイン
 
@@ -36,7 +56,7 @@ start_chrome.bat
 node rally.mjs --cdp http://127.0.0.1:9222 --rounds 3 --a chatgpt --b claude
 ```
 
-**方法B: login-onlyモード**
+**login-onlyモード**
 ```bash
 node rally.mjs --login-only
 ```
@@ -47,27 +67,7 @@ node rally.mjs --login-only
 
 直感的な操作が可能なデスクトップアプリ版も利用可能です。
 
-### 1. 準備（初回のみ）
-ルートディレクトリとGUIディレクトリの両方で依存関係をインストールしてください。
-
-```bash
-# 1. CLIツールの依存関係インストール
-npm install
-
-# 2. GUIアプリの依存関係インストール
-cd gui
-npm install
-cd ..
-```
-
-### 2. 起動
-以下のバッチファイルをダブルクリック（またはターミナルから実行）します。
-
-```bash
-start_gui.bat
-```
-
-### 3. 操作手順
+### 操作手順
 1. **Launcher**: 「Chromeを起動」ボタンを押します。
 2. **ログイン**: 起動したChromeで、使用したいLLMサイト（ChatGPT, Claude, Grokなど）に手動でログインします。
    - ⚠️ **重要**: アプリから操作するためには、ログイン状態が必要です。
@@ -82,7 +82,6 @@ start_gui.bat
 ※ 実行中はリアルタイムでログが表示され、終了後は「Result」タブでMarkdown/JSON形式の結果を確認・コピーできます。
 
 ## CLI版の使い方
-
 
 ### 1. シードファイルの準備
 `seed.txt` に最初の質問を書きます。
@@ -117,7 +116,7 @@ Chrome DevTools (CDP) で起動済みのChromeに接続する場合:
 ```bash
 node rally.mjs --cdp http://127.0.0.1:9222
 ```
-※ `start_chrome.bat` でChromeを起動すると、ポート9222でCDP接続可能になります。
+※ `start_chrome` でChromeを起動すると、ポート9222でCDP接続可能になります。
 
 任意のブラウザを指定する場合:
 ```bash
@@ -202,11 +201,11 @@ node test-selectors.mjs --site claude --cdp http://127.0.0.1:9222
 
 ### ログインが保持されない
 `pw-profile` ディレクトリが削除されている可能性があります。
-再度 `--login-only` でログインするか、`start_chrome.bat` でChromeを起動してログインしてください。
+再度 `--login-only` でログインするか、`start_chrome` でChromeを起動してログインしてください。
 
 ### CDPモードで接続できない
 1. すべてのChromeウィンドウを閉じる
-2. `start_chrome.bat` を実行してChromeを起動
+2. `start_chrome` を実行してChromeを起動
 3. `node rally.mjs --cdp http://127.0.0.1:9222 ...` を実行
 
 ## カスタマイズ
@@ -241,10 +240,15 @@ Playwrightの `.last()` メソッドで最後の要素を取得します。
 
 ```
 llm-rally/
+├── install.bat         # 初回セットアップ（Windows）
+├── install.command     # 初回セットアップ（macOS）
 ├── rally.mjs           # メインスクリプト
 ├── sites.json          # サイト設定（セレクタ）
 ├── seed.txt            # シード質問
 ├── start_chrome.bat    # Chrome起動スクリプト（Windows）
+├── start_chrome.command# Chrome起動スクリプト（macOS）
+├── start_gui.bat       # GUI起動スクリプト（Windows）
+├── start_gui.command   # GUI起動スクリプト（macOS）
 ├── test-selectors.mjs  # セレクタテストツール
 ├── logs/               # ログ出力ディレクトリ
 └── pw-profile/         # Playwrightプロファイル（ログイン状態）
@@ -252,4 +256,3 @@ llm-rally/
 
 ## ライセンス
 MIT
-
