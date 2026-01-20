@@ -5,6 +5,8 @@ out/
 .claude/
 .agent/
 assets/
+gui/.agent/
+gui/assets/
 
 # Playwright profile (contains login session)
 pw-profile/
